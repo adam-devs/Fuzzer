@@ -2,4 +2,4 @@
 #include <random>
 #include <string>
 
-std::string new_input(int i);
+std::string generate_new_input(int seed);

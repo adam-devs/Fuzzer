@@ -20,9 +20,9 @@ std::string generateRandomString(int length)
     return randomString;
 }
 
-std::string new_input(int i)
+std::string generate_new_input(int seed)
 {
-    std::cout << "Generating with seed" + std::to_string(i) << std::endl;
+    std::cout << "Generating with seed " + std::to_string(seed) << std::endl;
 
-    return "p cnf 10 " + generateRandomString(2);
+    return "p cnf " + generateRandomString(2) + " 0";
 }
