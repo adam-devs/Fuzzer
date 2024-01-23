@@ -24,5 +24,5 @@ std::string generate_new_input(int seed)
 {
     std::cout << "Generating with seed " + std::to_string(seed) << std::endl;
 
-    return "p cnf " + generateRandomString(2) + " 0";
+    return "p cnf " + generateRandomString(2) + " " + generateRandomString(1);
 }
