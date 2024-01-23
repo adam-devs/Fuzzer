@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
         inputs.push_back(entry.path());
     }
 
-    std::string run_solver = "." + path_to_SUT + "/runsat.sh " + inputs.front();
+    std::string run_solver = path_to_SUT + "/runsat.sh " + inputs.front();
     std::system(run_solver.c_str());
 
     return 0;
