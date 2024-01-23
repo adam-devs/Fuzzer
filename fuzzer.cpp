@@ -21,8 +21,11 @@ void run_solver(std::string path_to_SUT, std::string input)
     std::string run_solver = path_to_SUT + "/runsat.sh " + FILENAME;
     std::system(run_solver.c_str());
 
-    std::string mv = "mv " + FILENAME + " fuzzed-tests/saved" + std::to_string(counter++) + ".cnf";
-    std::system(mv.c_str());
+    if (counter < 20)
+    {
+        std::string mv = "mv " + FILENAME + " fuzzed-tests/saved" + std::to_string(counter++) + ".cnf";
+        std::system(mv.c_str());
+    }
 }
 
 int main(int argc, char *argv[])
