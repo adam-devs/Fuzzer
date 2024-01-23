@@ -1,0 +1,4 @@
+#!/bin/bash
+make fuzzer
+
+./fuzzer $1 $2 $3
