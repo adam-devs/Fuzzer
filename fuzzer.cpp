@@ -1,6 +1,7 @@
 #include "fuzzer.hpp"
 
-#define FILENAME "new_test.cnf"
+std::string FILENAME = "new_test.cnf";
+int counter = 0;
 
 void create_file(std::string filename, std::string content)
 {
@@ -15,9 +16,13 @@ void create_file(std::string filename, std::string content)
 void run_solver(std::string path_to_SUT, std::string input)
 {
     create_file(FILENAME, input);
+    std::system("cat new_test.cnf \n echo \n");
 
     std::string run_solver = path_to_SUT + "/runsat.sh " + FILENAME;
     std::system(run_solver.c_str());
+
+    std::string mv = "mv " + FILENAME + " fuzzed-tests/saved" + std::to_string(counter++) + ".cnf";
+    std::system(mv.c_str());
 }
 
 int main(int argc, char *argv[])
@@ -37,22 +42,18 @@ int main(int argc, char *argv[])
     std::list<std::string> inputs;
 
     for (const auto &entry : std::filesystem::directory_iterator(path_to_inputs))
-    {
-        // std::cout << entry.path() << std::endl;
         inputs.push_back(entry.path());
-    }
 
     auto start_time = std::chrono::steady_clock::now();
     auto end_time = start_time + std::chrono::seconds(10);
 
     while (std::chrono::steady_clock::now() < end_time)
     {
-        run_solver(path_to_SUT, new_input(seed));
+        std::cout << "----------------------------------------------------" << std::endl;
+        run_solver(path_to_SUT, generate_new_input(seed));
 
         if (std::chrono::steady_clock::now() >= end_time)
-        {
             break;
-        }
     }
 
     return 0;
