@@ -1,18 +1,7 @@
 #include "fuzzer.hpp"
-#include <fstream>
 
 std::string FILENAME = "current-test.cnf";
 int counter = 0;
-
-void create_file(std::string filename, std::string content)
-{
-    std::ofstream file(filename);
-    if (file.is_open())
-    {
-        file << content;
-        file.close();
-    }
-}
 
 std::string exec(const char *cmd)
 {
@@ -28,14 +17,6 @@ std::string exec(const char *cmd)
         result += buffer.data();
     }
     return result;
-}
-
-void print_file(std::string content, std::string label)
-{
-    std::cout << "~~~~~~~~~~~~~~~~~~~ " << label << " ~~~~~~~~~~~~~~~~~~~\n"
-              << content
-              << "~~~~~~~~~~~~~~~~~~~ " << label << " ~~~~~~~~~~~~~~~~~~~"
-              << std::endl;
 }
 
 void run_solver(std::string path_to_SUT, std::string input)
@@ -67,8 +48,6 @@ void run_solver(std::string path_to_SUT, std::string input)
         std::system(mv.c_str());
     }
 }
-
-#include <future>
 
 void run_solver_with_timeout(std::string path_to_SUT, std::string input, std::chrono::seconds timeout)
 {
