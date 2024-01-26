@@ -28,7 +28,6 @@ std::string generate_sat(int num_vars = 10, int num_clauses = 20, int max_clause
         for (int j = 0; j < max_clauses; j++)
         {
             int curr_var = d_vars(generator); 
-            std::cout << curr_var << std::endl;
             cnf_output += bool_vars[curr_var] ? std::to_string(curr_var + 1) : "-" + std::to_string(curr_var + 1); 
             cnf_output += " "; 
 
@@ -95,7 +94,7 @@ std::string generate_unsat_pigionhole(int pigions, int holes)
 }
 
 
-int main ()
-{
-    std::cout << generate_unsat_pigionhole(8, 3) << std::endl;   
-}
+// int main ()
+// {
+//     std::cout << generate_unsat_pigionhole(3, 2) << std::endl;   
+// }
