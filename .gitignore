@@ -3,7 +3,10 @@
 *.gcov
 *.gcda
 *.gcno
+*.txt
 sat
 
 # Fuzzer outputs
 fuzzed-tests/
+c_cpp_properties.json
+settings.json
