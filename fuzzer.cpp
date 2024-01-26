@@ -68,6 +68,19 @@ void run_solver(std::string path_to_SUT, std::string input)
     }
 }
 
+#include <future>
+
+void run_solver_with_timeout(std::string path_to_SUT, std::string input, std::chrono::seconds timeout)
+{
+    std::future<void> solver_future = std::async(std::launch::async, run_solver, path_to_SUT, input);
+
+    if (solver_future.wait_for(timeout) == std::future_status::timeout)
+    {
+        // Timeout occurred, handle it accordingly
+        std::cout << "Solver timed out!" << std::endl;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 4)
@@ -96,7 +109,9 @@ int main(int argc, char *argv[])
     while (std::chrono::steady_clock::now() < end_time)
     {
         std::cout << "-----------------------------------------------------------------" << std::endl;
-        run_solver(path_to_SUT, generate_new_input(seed));
+
+        // run_solver(path_to_SUT, generate_new_input(seed));
+        run_solver_with_timeout(path_to_SUT, generate_new_input(seed), std::chrono::seconds(5));
 
         if (std::chrono::steady_clock::now() >= end_time)
             break;
