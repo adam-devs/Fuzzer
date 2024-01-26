@@ -1,11 +1,9 @@
 #include "generate.hpp"
 
-#define ALPHANUM "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 #define NUM "0123456789"
 
-std::string generateRandomString(int length)
+std::string random_number(int length)
 {
-
     std::string characters = NUM;
     std::random_device rd;
     std::mt19937 generator(rd());
@@ -20,9 +18,10 @@ std::string generateRandomString(int length)
     return randomString;
 }
 
-std::string generate_new_input(int seed)
+// TODO: Generate input based on seed, coverage, etc.
+std::string generate_new_input(std::string seed)
 {
-    std::cout << "Generating with seed " + std::to_string(seed) << std::endl;
+    std::cout << "Generating input (with seed " + seed << "): " << std::endl;
 
-    return "p cnf " + generateRandomString(2) + " " + generateRandomString(1);
+    return "p cnf " + random_number(2) + " " + random_number(2) + "\n";
 }
