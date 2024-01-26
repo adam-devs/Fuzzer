@@ -78,6 +78,8 @@ void run_solver_with_timeout(std::string path_to_SUT, std::string input, std::ch
     {
         // Timeout occurred, handle it accordingly
         std::cout << "Solver timed out!" << std::endl;
+        std::string kill_solver = "killall runsat.sh";
+        std::system(kill_solver.c_str());
     }
 }
 
