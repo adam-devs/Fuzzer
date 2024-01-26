@@ -29,7 +29,7 @@ void run_solver(std::string path_to_SUT, std::string input)
     print_file(input_content, "INPUT");
 
     std::string run_solver = path_to_SUT + "/runsat.sh " + FILENAME;
-
+/*
     // Redirect SUT output to file
     std::string output_file = "output.txt";
     std::string redirect_output = run_solver + " > " + output_file + " 2>&1";
@@ -40,7 +40,7 @@ void run_solver(std::string path_to_SUT, std::string input)
     std::string output_content((std::istreambuf_iterator<char>(output_stream)),
                                std::istreambuf_iterator<char>());
     print_file(output_content, "OUTPUT");
-
+*/
     // TODO: Selectively save interesting inputs
     if (counter < 20)
     {
