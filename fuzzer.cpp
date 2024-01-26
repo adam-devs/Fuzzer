@@ -1,6 +1,7 @@
 #include "fuzzer.hpp"
+#include <fstream>
 
-std::string FILENAME = "new_test.cnf";
+std::string FILENAME = "current-test.cnf";
 int counter = 0;
 
 void create_file(std::string filename, std::string content)
@@ -13,14 +14,53 @@ void create_file(std::string filename, std::string content)
     }
 }
 
+std::string exec(const char *cmd)
+{
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe)
+    {
+        throw std::runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+    {
+        result += buffer.data();
+    }
+    return result;
+}
+
+void print_file(std::string content, std::string label)
+{
+    std::cout << "~~~~~~~~~~~~~~~~~~~ " << label << " ~~~~~~~~~~~~~~~~~~~\n"
+              << content
+              << "~~~~~~~~~~~~~~~~~~~ " << label << " ~~~~~~~~~~~~~~~~~~~"
+              << std::endl;
+}
+
 void run_solver(std::string path_to_SUT, std::string input)
 {
     create_file(FILENAME, input);
-    std::system("cat new_test.cnf \n echo \n");
+    // Read input file
+    std::ifstream input_stream(FILENAME);
+    std::string input_content((std::istreambuf_iterator<char>(input_stream)),
+                              std::istreambuf_iterator<char>());
+    print_file(input_content, "INPUT");
 
     std::string run_solver = path_to_SUT + "/runsat.sh " + FILENAME;
-    std::system(run_solver.c_str());
 
+    // Redirect SUT output to file
+    std::string output_file = "output.txt";
+    std::string redirect_output = run_solver + " > " + output_file + " 2>&1";
+    std::system(redirect_output.c_str());
+
+    // Read output file
+    std::ifstream output_stream(output_file);
+    std::string output_content((std::istreambuf_iterator<char>(output_stream)),
+                               std::istreambuf_iterator<char>());
+    print_file(output_content, "OUTPUT");
+
+    // TODO: Selectively save interesting inputs
     if (counter < 20)
     {
         std::string mv = "mv " + FILENAME + " fuzzed-tests/saved" + std::to_string(counter++) + ".cnf";
@@ -38,10 +78,12 @@ int main(int argc, char *argv[])
 
     std::string path_to_SUT = argv[1];
     std::string path_to_inputs = argv[2];
-    int seed = std::stoi(argv[3]);
+    std::string seed = argv[3];
 
+    // Create directory for interesting inputs
     std::system("mkdir fuzzed-tests");
 
+    // List of wellformed inputs
     std::list<std::string> inputs;
 
     for (const auto &entry : std::filesystem::directory_iterator(path_to_inputs))
@@ -50,9 +92,10 @@ int main(int argc, char *argv[])
     auto start_time = std::chrono::steady_clock::now();
     auto end_time = start_time + std::chrono::seconds(10);
 
+    // Main loop
     while (std::chrono::steady_clock::now() < end_time)
     {
-        std::cout << "----------------------------------------------------" << std::endl;
+        std::cout << "-----------------------------------------------------------------" << std::endl;
         run_solver(path_to_SUT, generate_new_input(seed));
 
         if (std::chrono::steady_clock::now() >= end_time)

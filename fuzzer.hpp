@@ -4,5 +4,8 @@
 #include <list>
 #include <chrono>
 #include <fstream>
+#include <cstdio>
+#include <memory>
+#include <stdexcept>
 
 #include "generate.hpp"
