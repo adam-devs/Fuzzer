@@ -92,9 +92,3 @@ std::string generate_unsat_pigionhole(int pigions, int holes)
     return "c pigionhole \np cnf " + std::to_string(pigions * holes) + " " + std::to_string(num_clauses) + "\n" + cnf_output; 
 
 }
-
-
-// int main ()
-// {
-//     std::cout << generate_unsat_pigionhole(3, 2) << std::endl;   
-// }
