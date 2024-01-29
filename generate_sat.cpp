@@ -38,7 +38,7 @@ std::string generate_sat(int num_vars = 10, int num_clauses = 20, int max_clause
             }
         }
 
-        cnf_output += " 0\n";
+        cnf_output += "0\n";
     }
 
     return cnf_output;
