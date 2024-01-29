@@ -1,4 +1,5 @@
 #include "generate.hpp"
+#include "generate_sat.hpp"
 
 #define NUM "0123456789"
 
@@ -23,6 +24,7 @@ std::string generate_new_input(std::string seed)
 {
     std::cout << "Generating input (with seed " + seed << "): " << std::endl;
 
-    return "p cnf " + random_number(2) + " " + random_number(2) + "\n";
-//    return "p cnf 1 1 \n1 0\n"; 
+    return generate_sat(10, 20, 20);
+    // return "p cnf " + random_number(2) + " " + random_number(2) + "\n";
+    //    return "p cnf 1 1 \n1 0\n";
 }
