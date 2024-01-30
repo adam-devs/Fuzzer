@@ -37,3 +37,6 @@ enum undefined_behaviour_t {
 // 	undefined_behaviour_t ub_type;
 // 	std::string err_str;	
 // };
+
+undefined_behaviour_t process_output(std::string output);
+

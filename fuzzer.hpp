@@ -9,6 +9,15 @@
 #include <stdexcept>
 #include <fstream>
 #include <future>
+//#include <algorithm>
+#include "process_output.hpp"
+
+typedef struct
+{ 
+  int priority;
+  undefined_behaviour_t type;
+  std::string address;
+} Input;
 
 void create_file(std::string filename, std::string content)
 {

@@ -22,7 +22,78 @@ std::string exec(const char *cmd)
     return result;
 }
 
-void run_solver(std::string path_to_SUT, std::string input)
+void initialise_saved_inputs(Input *saved) { 
+  for (int i = 0; i < 20; i++) {
+    saved[i].type = uncategorized;
+    saved[i].priority = 0;
+    saved[i].address = "0xADDRESS";
+  }
+}
+
+
+bool evaluate_input(Input *saved, undefined_behaviour_t type, std::string address) {
+  bool new_type = true;
+  bool new_address = true;
+
+  for (int i = 0; i < 20; i++) {
+    if (saved[i].type == type) {
+      new_type = false;
+    }
+    
+    if (saved[i].address == address) {
+      new_address = false;
+    }
+  }
+
+  int priority = 0;  
+
+
+
+  // 4: First time encountered type or address 
+  if (new_type && new_address) {
+    priority = 4;
+  // 3: Seen address before but not with this error type
+  } else if (!new_address && new_type) {
+    priority = 3;
+  // 2: Seen error type before but not with this address
+  } else if (!new_type && new_address) {
+    priority = 2;
+  // 1: Seen this error type with this address before
+ } else {
+    priority = 1;
+  }
+
+  int min_priority = 99;
+  int min_index = -1;
+
+
+  // Get lowest priority input in the saved list
+  for (int i = 0; i < 20; i++) {
+    if (saved[i].priority < min_priority) {
+      min_priority = saved[i].priority;
+      min_index = i;
+    }
+  }
+
+
+  if (min_priority != 99 && priority > min_priority) {
+    std::cout << "Replacing input " << std::to_string(min_index) << " with new input: Priority: " << std::to_string(priority) << ", Type: " << std::to_string(type) << std::endl;
+    
+    std::string mv = "mv " + FILENAME + " fuzzed-tests/saved" + std::to_string(min_index) + ".cnf";
+    counter++;
+    std::system(mv.c_str());
+
+    // Remove lowest priority from the list, append current input 
+    saved[min_index].priority = priority;
+    saved[min_index].type = type;    
+    saved[min_index].address = address;
+    return true;      
+  }
+
+  return false;
+}
+
+void run_solver(std::string path_to_SUT, Input *saved, std::string input)
 {
     if (verbose) std::cout << "-----------------------------------------------------------------" << std::endl;
 
@@ -45,18 +116,14 @@ void run_solver(std::string path_to_SUT, std::string input)
     std::string output_content((std::istreambuf_iterator<char>(output_stream)),
                                std::istreambuf_iterator<char>());
     if (verbose) print_file(output_content, "OUTPUT");
-
-    // TODO: Selectively save interesting inputs
-    if (counter < 20)
-    {
-        std::string mv = "mv " + FILENAME + " fuzzed-tests/saved" + std::to_string(counter++) + ".cnf";
-        std::system(mv.c_str());
-    }
+    
+    undefined_behaviour_t error_type = process_output(output_content);
+    evaluate_input(saved, error_type, "0x0000");
 }
 
-void run_solver_with_timeout(std::string path_to_SUT, std::string input, std::chrono::seconds timeout)
+void run_solver_with_timeout(std::string path_to_SUT, Input *saved, std::string input, std::chrono::seconds timeout)
 {
-    std::future<void> solver_future = std::async(std::launch::async, run_solver, path_to_SUT, input);
+    std::future<void> solver_future = std::async(std::launch::async, run_solver, path_to_SUT, saved, input);
 
     if (solver_future.wait_for(timeout) == std::future_status::timeout)
     {
@@ -113,6 +180,9 @@ int main(int argc, char *argv[])
     for (const auto &entry : std::filesystem::directory_iterator(path_to_inputs))
         inputs.push_back(entry.path());
 
+    Input saved_inputs[20];
+    initialise_saved_inputs(saved_inputs);
+
     auto start_time = std::chrono::steady_clock::now();
     auto end_time = start_time + std::chrono::seconds(30);
 
@@ -131,7 +201,7 @@ int main(int argc, char *argv[])
         }
 
         // Run the solver allowing for a timeout of 5 seconds
-        run_solver_with_timeout(path_to_SUT, generate_new_input(seed, action, verbose), std::chrono::seconds(5));
+        run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed, action, verbose), std::chrono::seconds(5));
 
         // Total time for fuzzing elapsed
         if (std::chrono::steady_clock::now() >= end_time)
