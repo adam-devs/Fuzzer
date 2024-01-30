@@ -4,10 +4,10 @@
 #include <string>
 #include <functional>
 
-std::string generate_cnf(int num_vars, int num_clauses, int max_clauses, unsigned int seed); 
+std::string generate_cnf(int num_vars = 10, int num_clauses = 20, int max_clauses = 20, unsigned int seed = 123);
 
-std::string generate_sat(int num_vars, int num_clauses, int max_clauses, unsigned int seed); 
+std::string generate_sat(int num_vars = 10, int num_clauses = 20, int max_clauses = 20, unsigned int seed = 123);
 
-std::string generate_unsat_combination(int num_vars);
+std::string generate_unsat_combination(int num_vars = 3);
 
-std::string generate_unsat_pigeonhole(int pigeons, int holes); 
+std::string generate_unsat_pigeonhole(int pigeons = 4, int holes = 3); 

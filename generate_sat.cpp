@@ -1,7 +1,7 @@
 #include "generate_sat.hpp"
 
 // Generate a cnf string (seeded random) that has no guarantee on SAT
-std::string generate_cnf(int num_vars = 10, int num_clauses = 20, int max_clauses = 20, unsigned int seed = 123456)
+std::string generate_cnf(int num_vars, int num_clauses, int max_clauses, unsigned int seed)
 {
     std::random_device rd;
     std::mt19937 generator(rd());
@@ -41,7 +41,7 @@ std::string generate_cnf(int num_vars = 10, int num_clauses = 20, int max_clause
 }
 
 // Generate a cnf string (seeded random) that guarenteed SAT
-std::string generate_sat(int num_vars = 10, int num_clauses = 20, int max_clauses = 20, unsigned int seed = 123456)
+std::string generate_sat(int num_vars, int num_clauses, int max_clauses, unsigned int seed)
 {
     std::random_device rd;
     std::mt19937 generator(rd());
@@ -89,7 +89,7 @@ std::string generate_sat(int num_vars = 10, int num_clauses = 20, int max_clause
 }
 
 // Generate a cnf string (deterministic) that is guarenteed UNSAT by enumerating all possible conditions
-std::string generate_unsat_combination(int num_vars = 3)
+std::string generate_unsat_combination(int num_vars)
 {   
     // The idea behind this algorithm is to generate every combination of negation 
     // pattern for the number of variables. 
