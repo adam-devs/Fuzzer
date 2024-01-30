@@ -9,6 +9,13 @@
 #include <stdexcept>
 #include <fstream>
 #include <future>
+//#include <algorithm>
+
+typedef struct
+{ 
+  int priority;
+  std::string address;
+} Input;
 
 void create_file(std::string filename, std::string content)
 {

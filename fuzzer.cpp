@@ -1,6 +1,7 @@
 #include "fuzzer.hpp"
 #include "coverage.hpp"
 #include "generate.hpp"
+#include "process_output.hpp"
 
 std::string FILENAME = "current-test.cnf";
 int counter = 0;
@@ -22,7 +23,59 @@ std::string exec(const char *cmd)
     return result;
 }
 
-void run_solver(std::string path_to_SUT, std::string input)
+void initialise_saved_inputs(Input *saved) { 
+  for (int i = 0; i < 20; i++) {
+    saved[i].priority = 10;
+    saved[i].address = "0xADDRESS";
+  }
+}
+
+bool evaluate_input(Input *saved, undefined_behaviour_t type, std::string address) {
+  int curr_priority = 100;  
+
+  // 1: First time encountered type or address
+  
+  // 2: Seen address before but not with this error type
+
+  // 3: Seen error type before but not with this address
+
+  // 4: Seen this error type with this address before
+ 
+  // Return curr_priority > min_priority
+    
+  int min_priority = 10;
+  int min_index = -1;
+
+  for (int i = 0; i < 20; i++) {
+    if (min_priority > saved[i].priority) {
+      min_priority = saved[i].priority;
+      min_index = i;
+    }
+  }
+
+  std::cout << std::to_string(min_priority) << std::endl;
+
+  return counter < 20;
+
+
+    
+  
+  if (curr_priority < min_priority)
+  {
+        // Get lowest priority input
+
+        std::string mv = "mv " + FILENAME + " fuzzed-tests/saved" + std::to_string(min_index) + ".cnf";
+        counter++;
+        std::system(mv.c_str());
+
+        // Remove lowest priority from the list, append current input
+        
+    }
+
+
+}
+
+void run_solver(std::string path_to_SUT, Input *saved, std::string input)
 {
     if (verbose) std::cout << "-----------------------------------------------------------------" << std::endl;
 
@@ -46,17 +99,12 @@ void run_solver(std::string path_to_SUT, std::string input)
                                std::istreambuf_iterator<char>());
     if (verbose) print_file(output_content, "OUTPUT");
 
-    // TODO: Selectively save interesting inputs
-    if (counter < 20)
-    {
-        std::string mv = "mv " + FILENAME + " fuzzed-tests/saved" + std::to_string(counter++) + ".cnf";
-        std::system(mv.c_str());
-    }
+    evaluate_input(saved, null_ptr, "0x0000");
 }
 
-void run_solver_with_timeout(std::string path_to_SUT, std::string input, std::chrono::seconds timeout)
+void run_solver_with_timeout(std::string path_to_SUT, Input *saved, std::string input, std::chrono::seconds timeout)
 {
-    std::future<void> solver_future = std::async(std::launch::async, run_solver, path_to_SUT, input);
+    std::future<void> solver_future = std::async(std::launch::async, run_solver, path_to_SUT, saved, input);
 
     if (solver_future.wait_for(timeout) == std::future_status::timeout)
     {
@@ -113,6 +161,9 @@ int main(int argc, char *argv[])
     for (const auto &entry : std::filesystem::directory_iterator(path_to_inputs))
         inputs.push_back(entry.path());
 
+    Input saved_inputs[20];
+    initialise_saved_inputs(saved_inputs);
+
     auto start_time = std::chrono::steady_clock::now();
     auto end_time = start_time + std::chrono::seconds(30);
 
@@ -131,7 +182,7 @@ int main(int argc, char *argv[])
         }
 
         // Run the solver allowing for a timeout of 5 seconds
-        run_solver_with_timeout(path_to_SUT, generate_new_input(seed, action, verbose), std::chrono::seconds(5));
+        run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed, action, verbose), std::chrono::seconds(5));
 
         // Total time for fuzzing elapsed
         if (std::chrono::steady_clock::now() >= end_time)
