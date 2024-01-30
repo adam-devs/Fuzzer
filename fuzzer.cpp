@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
     initialise_saved_inputs(saved_inputs);
 
     auto start_time = std::chrono::steady_clock::now();
-    auto end_time = start_time + std::chrono::seconds(30);
+    auto end_time = start_time + std::chrono::seconds(300);
 
     int action = 0;
     int n = 5;
