@@ -244,9 +244,30 @@ std::string random_mutate(
 
     if (enable_correct_pline)
     {
+        // Find the largest integer in variable_list 
+
+        int largest_var = 1; 
+        for (const auto& str : variable_list) {
+            try 
+            {
+                // Convert string to integer 
+                int variable = std::stoi(str); 
+                // Find Maximum
+                largest_var = std::max(largest_var, variable); 
+            } 
+            // Ignore errors and continue 
+            catch (const std::invalid_argument& ia) 
+            {
+                continue;
+            } 
+            catch (const std::out_of_range& oor) 
+            {
+                continue;
+            }
+        }
         auto num_lines = std::count(main_body_string.begin(), main_body_string.end(), '\n');
         num_lines += (!main_body_string.empty() && main_body_string.back() != '\n');
-        p_line_string = "p cnf " + std::to_string(variable_list.size()) + " " + std::to_string(num_lines) + "\n"; 
+        p_line_string = "p cnf " + std::to_string(largest_var) + " " + std::to_string(num_lines) + "\n"; 
     }
 
     // Distribution for chunk manipulation 
