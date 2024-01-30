@@ -2,6 +2,9 @@
 #include "coverage.hpp"
 #include "generate.hpp"
 
+#define FUZZER_TIMEOUT 60
+#define SUT_TIMEOUT 5
+
 std::string FILENAME = "current-test.cnf";
 int counter = 0;
 bool verbose = false;
@@ -31,6 +34,8 @@ void initialise_saved_inputs(Input *saved) {
 }
 
 
+
+
 bool evaluate_input(Input *saved, undefined_behaviour_t type, std::string address) {
   bool new_type = true;
   bool new_address = true;
@@ -47,25 +52,19 @@ bool evaluate_input(Input *saved, undefined_behaviour_t type, std::string addres
 
   int priority = 0;  
 
-
-
-  // 4: First time encountered type or address 
+  // Calculate priority from seen/unseen type or address
   if (new_type && new_address) {
     priority = 4;
-  // 3: Seen address before but not with this error type
   } else if (!new_address && new_type) {
     priority = 3;
-  // 2: Seen error type before but not with this address
   } else if (!new_type && new_address) {
     priority = 2;
-  // 1: Seen this error type with this address before
  } else {
     priority = 1;
   }
 
   int min_priority = 99;
   int min_index = -1;
-
 
   // Get lowest priority input in the saved list
   for (int i = 0; i < 20; i++) {
@@ -74,7 +73,6 @@ bool evaluate_input(Input *saved, undefined_behaviour_t type, std::string addres
       min_index = i;
     }
   }
-
 
   if (min_priority != 99 && priority > min_priority) {
     std::cout << "Replacing input " << std::to_string(min_index) << " with new input: Priority: " << std::to_string(priority) << ", Type: " << std::to_string(type) << std::endl;
@@ -134,7 +132,7 @@ void run_solver_with_timeout(std::string path_to_SUT, Input *saved, std::string 
     }
 }
 
-void check_coverage(std::string path_to_SUT, bool debug) {
+float check_coverage(std::string path_to_SUT, bool debug) {
   std::optional<coverage> arc_coverage = arc_coverage_all_files(path_to_SUT, debug);
   if (arc_coverage.has_value())
   { 
@@ -144,10 +142,13 @@ void check_coverage(std::string path_to_SUT, bool debug) {
     
     std::cout << "Overall Arc Coverage: " << exec << "/" << total
     << " (" << std::to_string(100*exec/total)<< "%)" << std::endl;
+    
+    return (100*exec/total);
   }
   else
   {
     std::cout << "Overall Arc Coverage: 0/0" << std::endl;
+    return 0.0;
   }
 }
 
@@ -161,7 +162,8 @@ int main(int argc, char *argv[])
 
     std::string path_to_SUT = argv[1];
     std::string path_to_inputs = argv[2];
-    std::string seed = argv[3];
+    std::string seed_input = argv[3];
+    int seed = std::stoi(seed_input);
     std::cout << std::to_string(argc) << std::endl;
 
     if (argc == 5)
@@ -184,10 +186,12 @@ int main(int argc, char *argv[])
     initialise_saved_inputs(saved_inputs);
 
     auto start_time = std::chrono::steady_clock::now();
-    auto end_time = start_time + std::chrono::seconds(300);
+    auto end_time = start_time + std::chrono::seconds(FUZZER_TIMEOUT);
 
     int action = 0;
     int n = 5;
+
+    float max_coverage = 0.0;
 
     // Main loop
     while (std::chrono::steady_clock::now() < end_time)
@@ -201,7 +205,16 @@ int main(int argc, char *argv[])
         }
 
         // Run the solver allowing for a timeout of 5 seconds
-        run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed, action, verbose), std::chrono::seconds(5));
+        run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, action, path_to_SUT, verbose), std::chrono::seconds(SUT_TIMEOUT));
+
+        float curr = 0.0;
+        if (path_to_SUT == "solvers/minisat") {
+          curr = check_coverage("solvers/minisat/core", verbose); 
+        } else {
+          curr = check_coverage(path_to_SUT, verbose);
+        }
+
+        max_coverage = std::max(curr, max_coverage);
 
         // Total time for fuzzing elapsed
         if (std::chrono::steady_clock::now() >= end_time)
@@ -210,7 +223,8 @@ int main(int argc, char *argv[])
 
     // Once working will need to check coverage every loop
     // to make decisions on exploration vs exploitation
-    check_coverage(path_to_SUT, verbose);
+   
+    std::cout << "Max Coverage: " << std::to_string(max_coverage) << std::endl;
 
     return 0;
 }

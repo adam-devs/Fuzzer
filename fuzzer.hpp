@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <fstream>
 #include <future>
-//#include <algorithm>
+#include <algorithm>
 #include "process_output.hpp"
 
 typedef struct
