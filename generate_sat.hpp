@@ -10,4 +10,4 @@ std::string generate_sat(int num_vars, int num_clauses, int max_clauses, int see
 
 std::string generate_unsat_combination(int num_vars);
 
-std::string generate_unsat_pigionhole(int pigions, int holes); 
+std::string generate_unsat_pigeonhole(int pigeons, int holes); 
