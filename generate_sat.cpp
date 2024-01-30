@@ -45,23 +45,32 @@ std::string generate_sat(int num_vars = 10, int num_clauses = 20, int max_clause
 }
 
 std::string generate_unsat_combination(int num_vars = 3)
-{
-    if (num_vars == 1) // Return Immediately with 1 variable 
+{   
+    // The idea behind this algorithm is to generate every combination of negation 
+    // pattern for the number of variables. 
+
+    // Complexity: O(2^n)
+    // Variables: num_vars
+    // Clauses: 2^n 
+
+    // Return immediately with 1 variable
+    if (num_vars == 1) 
     {
-        return "p cnf 1 2\n1 0\n-1 0\n"; 
+        return "c 1 variable combination\np cnf 1 2\n1 0\n-1 0\n"; 
     }
 
     int num_clauses = std::pow(2, num_vars);
-    std::string cnf_output = "p cnf " + std::to_string(num_vars) + " " + std::to_string(num_clauses) + "\n"; 
+    std::string cnf_output = "c " + std::to_string(num_vars) + " variable combination\n"; 
+    cnf_output += "p cnf " + std::to_string(num_vars) + " " + std::to_string(num_clauses) + "\n"; 
 
     for (int i = 0; i < num_clauses; i++) {
         for (int j = 0; j < num_vars; j++) {
 
             // Check if jth bit of i is set
             if ((i >> j) & 1) {
-                cnf_output += std::to_string(j + 1) + " "; // True form (positive)
+                cnf_output += std::to_string(j + 1) + " "; // True for set bits 
             } else {
-                cnf_output += "-" + std::to_string(j + 1) + " "; // False form (negative)
+                cnf_output += "-" + std::to_string(j + 1) + " "; // False for non-set bits 
             }
         }
         cnf_output += "0\n"; 
