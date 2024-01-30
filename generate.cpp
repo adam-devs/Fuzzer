@@ -20,11 +20,26 @@ std::string random_number(int length)
 }
 
 // TODO: Generate input based on seed, coverage, etc.
-std::string generate_new_input(std::string seed)
+std::string generate_new_input(std::string seed, int action, bool verbose = false)
 {
-    std::cout << "Generating input (with seed " + seed << "): " << std::endl;
+    if (verbose) {
+      std::cout << "Generating input (action: " + std::to_string(action) + ", seed: " + seed << "): " << std::endl;
+    }
 
-    return generate_sat(10, 20, 20);
-    // return "p cnf " + random_number(2) + " " + random_number(2) + "\n";
-    //    return "p cnf 1 1 \n1 0\n";
+    switch (action)
+    {
+    case 1:
+        return generate_sat(10, 10, 10);
+    case 2:
+        return generate_sat(10000, 10000, 10000);
+    case 3:
+        return generate_sat(2, 10, 10);
+    case 4:
+        return generate_sat(1, 1, 1);
+    case 5:
+        return generate_unsat_pigionhole(10, 9);
+    default:
+        return generate_sat(1, 1, 1);
+    }
+
 }

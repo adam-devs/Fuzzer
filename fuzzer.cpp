@@ -1,7 +1,10 @@
 #include "fuzzer.hpp"
+#include "coverage.hpp"
+#include "generate.hpp"
 
 std::string FILENAME = "current-test.cnf";
 int counter = 0;
+bool verbose = false;
 
 std::string exec(const char *cmd)
 {
@@ -21,12 +24,14 @@ std::string exec(const char *cmd)
 
 void run_solver(std::string path_to_SUT, std::string input)
 {
+    if (verbose) std::cout << "-----------------------------------------------------------------" << std::endl;
+
     create_file(FILENAME, input);
     // Read input file
     std::ifstream input_stream(FILENAME);
     std::string input_content((std::istreambuf_iterator<char>(input_stream)),
                               std::istreambuf_iterator<char>());
-    print_file(input_content, "INPUT");
+    if (verbose) print_file(input_content, "INPUT");
 
     std::string run_solver = path_to_SUT + "/runsat.sh " + FILENAME;
 
@@ -39,7 +44,7 @@ void run_solver(std::string path_to_SUT, std::string input)
     std::ifstream output_stream(output_file);
     std::string output_content((std::istreambuf_iterator<char>(output_stream)),
                                std::istreambuf_iterator<char>());
-    print_file(output_content, "OUTPUT");
+    if (verbose) print_file(output_content, "OUTPUT");
 
     // TODO: Selectively save interesting inputs
     if (counter < 20)
@@ -62,6 +67,23 @@ void run_solver_with_timeout(std::string path_to_SUT, std::string input, std::ch
     }
 }
 
+void check_coverage(std::string path_to_SUT, bool debug) {
+  std::optional<coverage> arc_coverage = arc_coverage_all_files(path_to_SUT, debug);
+  if (arc_coverage.has_value())
+  { 
+    coverage *progress = &arc_coverage.value();
+    int exec = progress->arcs_executed;
+    int total = progress->arcs;
+    
+    std::cout << "Overall Arc Coverage: " << exec << "/" << total
+    << " (" << std::to_string(100*exec/total)<< "%)" << std::endl;
+  }
+  else
+  {
+    std::cout << "Overall Arc Coverage: 0/0" << std::endl;
+  }
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 4)
@@ -73,6 +95,14 @@ int main(int argc, char *argv[])
     std::string path_to_SUT = argv[1];
     std::string path_to_inputs = argv[2];
     std::string seed = argv[3];
+    std::cout << std::to_string(argc) << std::endl;
+
+    if (argc == 5)
+    {
+      std::cout << argv[4] << std::endl;
+      std::string argument = argv[4];     
+      verbose = "-verbose" == argument;
+    }
 
     // Create directory for interesting inputs
     std::system("mkdir fuzzed-tests");
@@ -84,19 +114,34 @@ int main(int argc, char *argv[])
         inputs.push_back(entry.path());
 
     auto start_time = std::chrono::steady_clock::now();
-    auto end_time = start_time + std::chrono::seconds(10);
+    auto end_time = start_time + std::chrono::seconds(30);
+
+    int action = 0;
+    int n = 5;
 
     // Main loop
     while (std::chrono::steady_clock::now() < end_time)
     {
-        std::cout << "-----------------------------------------------------------------" << std::endl;
+        // Select action as an even split of the time available for n actions
+        int next_action = n - std::chrono::duration_cast<std::chrono::seconds>(end_time - std::chrono::steady_clock::now()).count() / (n + 1);
 
-        // run_solver(path_to_SUT, generate_new_input(seed));
-        run_solver_with_timeout(path_to_SUT, generate_new_input(seed), std::chrono::seconds(5));
+        if (next_action != action) {
+          action = next_action;
+          std::cout << "-------------------- Performing action " << std::to_string(action) << " ----------------------" << std::endl;  
+        }
 
+        // Run the solver allowing for a timeout of 5 seconds
+        run_solver_with_timeout(path_to_SUT, generate_new_input(seed, action, verbose), std::chrono::seconds(5));
+
+        // Total time for fuzzing elapsed
         if (std::chrono::steady_clock::now() >= end_time)
             break;
     }
 
+    // Once working will need to check coverage every loop
+    // to make decisions on exploration vs exploitation
+    check_coverage(path_to_SUT, verbose);
+
     return 0;
 }
+
