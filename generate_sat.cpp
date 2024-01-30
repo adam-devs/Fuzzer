@@ -44,6 +44,32 @@ std::string generate_sat(int num_vars = 10, int num_clauses = 20, int max_clause
     return cnf_output;
 }
 
+std::string generate_unsat_combination(int num_vars = 3)
+{
+    if (num_vars == 1) // Return Immediately with 1 variable 
+    {
+        return "p cnf 1 2\n1 0\n-1 0\n"; 
+    }
+
+    int num_clauses = std::pow(2, num_vars);
+    std::string cnf_output = "p cnf " + std::to_string(num_vars) + " " + std::to_string(num_clauses) + "\n"; 
+
+    for (int i = 0; i < num_clauses; i++) {
+        for (int j = 0; j < num_vars; j++) {
+
+            // Check if jth bit of i is set
+            if ((i >> j) & 1) {
+                cnf_output += std::to_string(j + 1) + " "; // True form (positive)
+            } else {
+                cnf_output += "-" + std::to_string(j + 1) + " "; // False form (negative)
+            }
+        }
+        cnf_output += "0\n"; 
+    }
+
+    return cnf_output; 
+}
+
 std::string generate_unsat_pigionhole(int pigions, int holes)
 {
     // The idea behind this algorith to generate UNSATs is that there are more 
