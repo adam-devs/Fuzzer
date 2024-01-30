@@ -31,6 +31,7 @@ enum undefined_behaviour_t {
 	heap_buffer_overflow,
 
 	uncategorized,
+  placeholder,
 };
 
 // struct process_result {

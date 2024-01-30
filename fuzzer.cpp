@@ -27,13 +27,24 @@ std::string exec(const char *cmd)
 
 void initialise_saved_inputs(Input *saved) { 
   for (int i = 0; i < 20; i++) {
-    saved[i].type = uncategorized;
+    saved[i].type = placeholder;
     saved[i].priority = 0;
     saved[i].address = "0xADDRESS";
   }
 }
 
+void export_inputs_info(Input *saved) {
+  std::string out = "";  
 
+  for (int i = 0; i < 20; i++) {
+    out = out + std::to_string(i) + " Type: " + std::to_string(saved[i].type) + "\n";
+
+//    saved[i].priority = 0;
+//    saved[i].address = "0xADDRESS";
+  }
+
+  std::cout << out << std::endl;
+}
 
 
 bool evaluate_input(Input *saved, undefined_behaviour_t type, std::string address) {
@@ -197,7 +208,7 @@ int main(int argc, char *argv[])
     while (std::chrono::steady_clock::now() < end_time)
     {
         // Select action as an even split of the time available for n actions
-        int next_action = n - std::chrono::duration_cast<std::chrono::seconds>(end_time - std::chrono::steady_clock::now()).count() / (n + 1);
+        int next_action = n -(std::chrono::duration_cast<std::chrono::seconds>(end_time - std::chrono::steady_clock::now()).count() / (2 * n));
 
         if (next_action != action) {
           action = next_action;
@@ -208,10 +219,11 @@ int main(int argc, char *argv[])
         run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, action, path_to_SUT, verbose), std::chrono::seconds(SUT_TIMEOUT));
 
         float curr = 0.0;
+
         if (path_to_SUT == "solvers/minisat") {
-          curr = check_coverage("solvers/minisat/core", verbose); 
+          //curr = check_coverage("solvers/minisat/core", verbose); 
         } else {
-          curr = check_coverage(path_to_SUT, verbose);
+          //curr = check_coverage(path_to_SUT, verbose);
         }
 
         max_coverage = std::max(curr, max_coverage);
@@ -222,10 +234,12 @@ int main(int argc, char *argv[])
     }
 
     // Once working will need to check coverage every loop
-    // to make decisions on exploration vs exploitation
-   
+    // to make decisions on exploration vs exploitation   
     std::cout << "Max Coverage: " << std::to_string(max_coverage) << std::endl;
-
+  
+    //Print info about saved inputs  
+    export_inputs_info(saved_inputs);
+  
     return 0;
 }
 
