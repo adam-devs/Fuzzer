@@ -64,7 +64,7 @@ std::string random_mutate(
     int chunk_deletion_times        = 1, 
     bool enable_chunk_rearrange     = false, // Risk low level error (Nuclear button)
     int chunk_rearrange_times       = 1, 
-    int seed                        = 1234
+    unsigned int seed               = 1234
     )
 {
     std::istringstream  isstream(cnf_input); 

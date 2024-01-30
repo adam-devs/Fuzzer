@@ -27,4 +27,4 @@ std::string random_mutate(
     int chunk_deletion_times       ,
     bool enable_chunk_rearrange    ,
     int chunk_rearrange_times      , 
-    int seed                       ); 
+    unsigned int seed              ); 
