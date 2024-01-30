@@ -6,6 +6,7 @@ Ideas:
 Mutate variables into utf-8 
 Mutate very big variables 
 Mutate non-existing variables 
+Merge two CNF files 
 
 */
 
@@ -62,7 +63,8 @@ std::string random_mutate(
     bool enable_chunk_deletion      = false, // Risk low level error (Nuclear button)
     int chunk_deletion_times        = 1, 
     bool enable_chunk_rearrange     = false, // Risk low level error (Nuclear button)
-    int chunk_rearrange_times       = 1
+    int chunk_rearrange_times       = 1, 
+    int seed                        = 1234
     )
 {
     std::istringstream  isstream(cnf_input); 
@@ -70,6 +72,7 @@ std::string random_mutate(
 
     std::random_device rd;
     std::mt19937 generator(rd());
+    generator.seed(seed); 
 
     bool in_main_body = false; 
 
