@@ -2,8 +2,8 @@ CC = g++
 CFLAGS = -Wall -Wextra --std=c++17
 
 all: fuzzer
-fuzzer: fuzzer.o generate.o generate_sat.o mutate.o coverage.o
-	$(CC) $(CFLAGS) -o fuzzer fuzzer.o generate.o generate_sat.o mutate.o coverage.o gcov.o
+fuzzer: fuzzer.o generate.o generate_sat.o mutate.o coverage.o process_output.o
+	$(CC) $(CFLAGS) -o fuzzer fuzzer.o generate.o generate_sat.o mutate.o coverage.o gcov.o process_output.o
 
 generate.o: generate.cpp
 	$(CC) $(CFLAGS) -c generate.cpp

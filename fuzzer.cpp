@@ -1,7 +1,6 @@
 #include "fuzzer.hpp"
 #include "coverage.hpp"
 #include "generate.hpp"
-#include "process_output.hpp"
 
 std::string FILENAME = "current-test.cnf";
 int counter = 0;
@@ -25,54 +24,73 @@ std::string exec(const char *cmd)
 
 void initialise_saved_inputs(Input *saved) { 
   for (int i = 0; i < 20; i++) {
-    saved[i].priority = 10;
+    saved[i].type = uncategorized;
+    saved[i].priority = 0;
     saved[i].address = "0xADDRESS";
   }
 }
 
+
 bool evaluate_input(Input *saved, undefined_behaviour_t type, std::string address) {
-  int curr_priority = 100;  
-
-  // 1: First time encountered type or address
-  
-  // 2: Seen address before but not with this error type
-
-  // 3: Seen error type before but not with this address
-
-  // 4: Seen this error type with this address before
- 
-  // Return curr_priority > min_priority
-    
-  int min_priority = 10;
-  int min_index = -1;
+  bool new_type = true;
+  bool new_address = true;
 
   for (int i = 0; i < 20; i++) {
-    if (min_priority > saved[i].priority) {
+    if (saved[i].type == type) {
+      new_type = false;
+    }
+    
+    if (saved[i].address == address) {
+      new_address = false;
+    }
+  }
+
+  int priority = 0;  
+
+
+
+  // 4: First time encountered type or address 
+  if (new_type && new_address) {
+    priority = 4;
+  // 3: Seen address before but not with this error type
+  } else if (!new_address && new_type) {
+    priority = 3;
+  // 2: Seen error type before but not with this address
+  } else if (!new_type && new_address) {
+    priority = 2;
+  // 1: Seen this error type with this address before
+ } else {
+    priority = 1;
+  }
+
+  int min_priority = 99;
+  int min_index = -1;
+
+
+  // Get lowest priority input in the saved list
+  for (int i = 0; i < 20; i++) {
+    if (saved[i].priority < min_priority) {
       min_priority = saved[i].priority;
       min_index = i;
     }
   }
 
-  std::cout << std::to_string(min_priority) << std::endl;
 
-  return counter < 20;
-
-
+  if (min_priority != 99 && priority > min_priority) {
+    std::cout << "Replacing input " << std::to_string(min_index) << " with new input: Priority: " << std::to_string(priority) << ", Type: " << std::to_string(type) << std::endl;
     
-  
-  if (curr_priority < min_priority)
-  {
-        // Get lowest priority input
+    std::string mv = "mv " + FILENAME + " fuzzed-tests/saved" + std::to_string(min_index) + ".cnf";
+    counter++;
+    std::system(mv.c_str());
 
-        std::string mv = "mv " + FILENAME + " fuzzed-tests/saved" + std::to_string(min_index) + ".cnf";
-        counter++;
-        std::system(mv.c_str());
+    // Remove lowest priority from the list, append current input 
+    saved[min_index].priority = priority;
+    saved[min_index].type = type;    
+    saved[min_index].address = address;
+    return true;      
+  }
 
-        // Remove lowest priority from the list, append current input
-        
-    }
-
-
+  return false;
 }
 
 void run_solver(std::string path_to_SUT, Input *saved, std::string input)
@@ -98,8 +116,9 @@ void run_solver(std::string path_to_SUT, Input *saved, std::string input)
     std::string output_content((std::istreambuf_iterator<char>(output_stream)),
                                std::istreambuf_iterator<char>());
     if (verbose) print_file(output_content, "OUTPUT");
-
-    evaluate_input(saved, null_ptr, "0x0000");
+    
+    undefined_behaviour_t error_type = process_output(output_content);
+    evaluate_input(saved, error_type, "0x0000");
 }
 
 void run_solver_with_timeout(std::string path_to_SUT, Input *saved, std::string input, std::chrono::seconds timeout)

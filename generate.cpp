@@ -31,13 +31,13 @@ std::string generate_new_input(std::string seed, int action, bool verbose = fals
     case 1:
         return generate_sat(10, 10, 10);
     case 2:
-        return generate_sat(10000, 10000, 10000);
+        return generate_unsat_pigeonhole(10, 9);
     case 3:
         return generate_sat(2, 10, 10);
     case 4:
         return generate_sat(1, 1, 1);
     case 5:
-        return generate_unsat_pigionhole(10, 9);
+        return generate_sat(5, 5, 5);
     default:
         return generate_sat(1, 1, 1);
     }
