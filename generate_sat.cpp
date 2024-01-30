@@ -1,9 +1,53 @@
 #include "generate_sat.hpp"
 
-std::string generate_sat(int num_vars = 10, int num_clauses = 20, int max_clauses = 20)
+
+std::string generate_cnf(int num_vars = 10, int num_clauses = 20, int max_clauses = 20, int seed = 123456)
 {
     std::random_device rd;
     std::mt19937 generator(rd());
+    generator.seed(seed); 
+
+    // Create base cnf prefix
+    std::string cnf_output = "p cnf " + std::to_string(num_vars) + " " + std::to_string(num_clauses) + "\n"; 
+
+    // Create distribution for choosing a random boolean values
+    std::bernoulli_distribution d_bool(0.5);
+
+    // Create distribution for choosing variables 
+    std::uniform_int_distribution<int> d_vars(0, num_vars - 1);
+
+    // Create distribution for breaking the for loop 
+    std::uniform_int_distribution<int> d_max_clauses(0, max_clauses - 1);
+
+    for (int i = 0; i < num_clauses; i++)
+    {
+        for (int j = 0; j < max_clauses; j++)
+        {
+            int curr_var = d_vars(generator); 
+            cnf_output += d_bool(generator) ? std::to_string(curr_var + 1) : "-" + std::to_string(curr_var + 1); 
+            cnf_output += " "; 
+
+            // Break randomly to create random clause lengths
+            if (d_max_clauses(generator) < j)
+            {
+                break; 
+            }
+        }
+
+        cnf_output += "0\n";
+    }
+
+    return cnf_output;
+}
+
+// Generates a 
+std::string generate_sat(int num_vars = 10, int num_clauses = 20, int max_clauses = 20, int seed = 123456)
+{
+    std::random_device rd;
+    std::mt19937 generator(rd());
+    generator.seed(seed); 
+
+    // Initialise vector for generating variables 
     std::vector<bool> bool_vars(num_vars); 
 
     // Create base cnf prefix
