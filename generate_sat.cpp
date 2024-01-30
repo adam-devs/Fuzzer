@@ -108,13 +108,18 @@ std::string generate_unsat_combination(int num_vars = 3)
     std::string cnf_output = "c " + std::to_string(num_vars) + " variable combination\n"; 
     cnf_output += "p cnf " + std::to_string(num_vars) + " " + std::to_string(num_clauses) + "\n"; 
 
-    for (int i = 0; i < num_clauses; i++) {
-        for (int j = 0; j < num_vars; j++) {
+    for (int i = 0; i < num_clauses; i++) 
+    {
+        for (int j = 0; j < num_vars; j++) 
+        {
 
             // Check if jth bit of i is set
-            if ((i >> j) & 1) {
+            if ((i >> j) & 1) 
+            {
                 cnf_output += std::to_string(j + 1) + " "; // True for set bits 
-            } else {
+            } 
+            else 
+            {
                 cnf_output += "-" + std::to_string(j + 1) + " "; // False for non-set bits 
             }
         }
