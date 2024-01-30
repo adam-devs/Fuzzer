@@ -1,6 +1,6 @@
 #include "generate_sat.hpp"
 
-
+// Generate a cnf string (seeded random) that has no guarantee on SAT
 std::string generate_cnf(int num_vars = 10, int num_clauses = 20, int max_clauses = 20, int seed = 123456)
 {
     std::random_device rd;
@@ -40,7 +40,7 @@ std::string generate_cnf(int num_vars = 10, int num_clauses = 20, int max_clause
     return cnf_output;
 }
 
-// Generates a 
+// Generate a cnf string (seeded random) that guarenteed SAT
 std::string generate_sat(int num_vars = 10, int num_clauses = 20, int max_clauses = 20, int seed = 123456)
 {
     std::random_device rd;
@@ -88,6 +88,7 @@ std::string generate_sat(int num_vars = 10, int num_clauses = 20, int max_clause
     return cnf_output;
 }
 
+// Generate a cnf string (deterministic) that is guarenteed UNSAT by enumerating all possible conditions
 std::string generate_unsat_combination(int num_vars = 3)
 {   
     // The idea behind this algorithm is to generate every combination of negation 
@@ -123,44 +124,45 @@ std::string generate_unsat_combination(int num_vars = 3)
     return cnf_output; 
 }
 
-std::string generate_unsat_pigionhole(int pigions, int holes)
+// Generate a cnf string (deterministic) that is guarenteed UNSAT by expressing the pigeon hole problem 
+std::string generate_unsat_pigeonhole(int pigeons, int holes)
 {
     // The idea behind this algorith to generate UNSATs is that there are more 
-    // pigions than there are holes, we express that each pigion must be in a 
-    // hole and that no two pigions should be in the same hole. 
+    // pigeons than there are holes, we express that each pigeon must be in a 
+    // hole and that no two pigeons should be in the same hole. 
 
-    // Complexity: O(n^3) (Assuming that pigions = holes + 1)
-    // Variables: pigions * holes 
-    // Clauses: pigions + holes * pigion * (pigion - 1) / 2
+    // Complexity: O(n^3) (Assuming that pigeons = holes + 1)
+    // Variables: pigeons * holes 
+    // Clauses: pigeons + holes * pigeon * (pigeon - 1) / 2
 
     // Return standard UNSAT case if inputs are incorrect 
-    if (pigions <= holes) { return "c error \n p cnf 1 2 \n -1 0\n 1 0"; }
+    if (pigeons <= holes) { return "c error \n p cnf 1 2 \n -1 0\n 1 0"; }
 
     std::string cnf_output = ""; 
     int num_clauses = 0; // Accumulating to save time on division / multiplication
 
-    // Express that each pigion should be in a hole 
-    for (int pigion = 0; pigion < pigions; pigion++)
+    // Express that each pigeon should be in a hole 
+    for (int pigeon = 0; pigeon < pigeons; pigeon++)
     {
         for (int hole = 0; hole < holes; hole++)
         {
-            cnf_output += std::to_string((pigion) * holes + hole + 1); 
+            cnf_output += std::to_string((pigeon) * holes + hole + 1); 
             cnf_output += " "; 
         }
         cnf_output += " 0\n";
         num_clauses++; 
     }
 
-    // Express that two pigions cannot be in the same hole 
+    // Express that two pigeons cannot be in the same hole 
     for (int hole = 0; hole < holes; hole++)
     {
-        for (int pigion1 = 0; pigion1 < pigions; pigion1++)
+        for (int pigeon1 = 0; pigeon1 < pigeons; pigeon1++)
         {
-            for (int pigion2 = pigion1 + 1; pigion2 < pigions; pigion2++)
+            for (int pigeon2 = pigeon1 + 1; pigeon2 < pigeons; pigeon2++)
             {
-                cnf_output += "-" + std::to_string((pigion1) * holes + hole + 1); 
+                cnf_output += "-" + std::to_string((pigeon1) * holes + hole + 1); 
                 cnf_output += " "; 
-                cnf_output += "-" + std::to_string((pigion2) * holes + hole + 1); 
+                cnf_output += "-" + std::to_string((pigeon2) * holes + hole + 1); 
                 cnf_output += "  0\n"; 
                 num_clauses++; 
             }
@@ -168,6 +170,6 @@ std::string generate_unsat_pigionhole(int pigions, int holes)
     }
 
     // Generate final cnf file 
-    return "c pigionhole \np cnf " + std::to_string(pigions * holes) + " " + std::to_string(num_clauses) + "\n" + cnf_output; 
+    return "c pigeonhole \np cnf " + std::to_string(pigeons * holes) + " " + std::to_string(num_clauses) + "\n" + cnf_output; 
 
 }
