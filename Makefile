@@ -14,6 +14,9 @@ generate_sat.o: generate_sat.cpp
 mutate.o: mutate.cpp
 	$(CC) $(CFLAGS) -c mutate.cpp
 
+process_output.o: process_output.cpp
+	$(CC) $(CFLAGS) -c process_output.cpp
+
 coverage.o: coverage.cpp gcov.o
 	$(CC) $(CFLAGS) -c coverage.cpp
 

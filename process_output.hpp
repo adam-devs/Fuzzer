@@ -1,4 +1,20 @@
+<<<<<<< HEAD
+#include <string>
+
+
+// Error strings that UB sanitizer will output for the
+// various types of UB
+#define OUTPUT_VLA_BOUND "variable length array"
+
+#define OUTPUT_NULL_PTR "null pointer"
+
+#define OUTPUT_HEAP_BUFFER_OVERFLOW "heap-buffer-overflow"
+
 // https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
+// Enumeration of all possible UBs detected by UB sanitizer
+=======
+// https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
+>>>>>>> master
 enum undefined_behaviour_t {
 	ub_start,
 
@@ -18,3 +34,11 @@ enum undefined_behaviour_t {
 
 	uncategorized,
 };
+<<<<<<< HEAD
+
+// struct process_result {
+// 	undefined_behaviour_t ub_type;
+// 	std::string err_str;	
+// };
+=======
+>>>>>>> master
