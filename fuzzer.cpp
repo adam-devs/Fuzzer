@@ -67,16 +67,20 @@ void run_solver_with_timeout(std::string path_to_SUT, std::string input, std::ch
     }
 }
 
-void check_coverage(std::string path_to_SUT) {
-  std::optional<coverage> arc_coverage = arc_coverage_all_files(path_to_SUT, true);
+void check_coverage(std::string path_to_SUT, bool debug) {
+  std::optional<coverage> arc_coverage = arc_coverage_all_files(path_to_SUT, debug);
   if (arc_coverage.has_value())
-  {
+  { 
     coverage *progress = &arc_coverage.value();
-    std::cout << "Progress: " << progress->arcs_executed << "/" << progress->arcs << std::endl;
+    int exec = progress->arcs_executed;
+    int total = progress->arcs;
+    
+    std::cout << "Overall Arc Coverage: " << exec << "/" << total
+    << " (" << std::to_string(100*exec/total)<< "%)" << std::endl;
   }
   else
   {
-    std::cout << "Progress: 0/0" << std::endl;
+    std::cout << "Overall Arc Coverage: 0/0" << std::endl;
   }
 }
 
@@ -136,7 +140,7 @@ int main(int argc, char *argv[])
 
     // Once working will need to check coverage every loop
     // to make decisions on exploration vs exploitation
-    check_coverage(path_to_SUT);
+    check_coverage(path_to_SUT, verbose);
 
     return 0;
 }
