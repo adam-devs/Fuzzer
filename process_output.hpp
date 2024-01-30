@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <string>
 
 
@@ -11,6 +12,9 @@
 
 // https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
 // Enumeration of all possible UBs detected by UB sanitizer
+=======
+// https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
+>>>>>>> master
 enum undefined_behaviour_t {
 	ub_start,
 
@@ -30,8 +34,11 @@ enum undefined_behaviour_t {
 
 	uncategorized,
 };
+<<<<<<< HEAD
 
 // struct process_result {
 // 	undefined_behaviour_t ub_type;
 // 	std::string err_str;	
 // };
+=======
+>>>>>>> master

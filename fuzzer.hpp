@@ -10,8 +10,6 @@
 #include <fstream>
 #include <future>
 
-#include "generate.hpp"
-
 void create_file(std::string filename, std::string content)
 {
     std::ofstream file(filename);

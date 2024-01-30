@@ -21,7 +21,7 @@
 
 #define GCOV_NOTE_MAGIC 0x67636e6f // note/graph
 #define GCOV_DATA_MAGIC 0x67636461 // data/count files
-#define GCOV_WORD_SIZE 4
+#define GCOV_WORD_SIZE 1
 
 // Taken from the gcov source
 #define GCOV_TAG_FUNCTION	 (0x01000000)

@@ -30,19 +30,24 @@ std::optional<uint32_t> read_uint32(FILE* fd) {
 std::optional<std::string> read_string(FILE* fd) {
 
 	auto length = read_uint32(fd);
+	// printf("Reading string of length: %i\n", length);
+	
 	if(!length.has_value()){
 		return {};
 	}
 	
 	std::string str;
-	str.resize(*length);
+	str.resize((*length) * 4);
 
-	auto res = read_bytes(fd, &str[0], *length);
+	auto res = read_bytes(fd, &str[0], (*length) * 4);
 	if (res.has_value()){
+		
+		// printf("Read string: %s\n", str.c_str());
 		return str;
 	} else {
 		return {};
 	}
+
 }
 
 int read_notes_file(std::string notes_file_name, std::vector<function_info_t*>* functions, std::map<uint32_t, function_info_t *>* ident_to_fn) {
@@ -66,10 +71,11 @@ int read_notes_file(std::string notes_file_name, std::vector<function_info_t*>* 
 
 	auto version = read_uint32(notes_fd);
 	auto stamp = read_uint32(notes_fd);
-	auto checksum = read_uint32(notes_fd);
+	// auto checksum = read_uint32(notes_fd);
 	uint32_t current_tag = 0;
 
-	if(!version.has_value() || !stamp.has_value() || !checksum.has_value()){
+	if(!version.has_value() || !stamp.has_value() ){
+	// if(!version.has_value() || !stamp.has_value() || !checksum.has_value()){
 		printf("Could not read version, stamp or checksum\n");
 		return 1;
 	}
@@ -81,9 +87,11 @@ int read_notes_file(std::string notes_file_name, std::vector<function_info_t*>* 
 		printf("Could not read working directory.\n");
 		return 1;
 	}
-
+	
+	// read_uint32(notes_fd);
 	auto unexecuted_blocks = read_uint32(notes_fd);
-
+	// printf("Unexec blocks: %i\n", unexecuted_blocks);
+	
 	/*
 	The basic block graph file contains the following records
 	   	note: unit function-graph*
@@ -182,10 +190,10 @@ int read_notes_file(std::string notes_file_name, std::vector<function_info_t*>* 
 		} else if(fn && tag == GCOV_TAG_ARCS) {
 
 			// Data entry describing arcs from a single basic block (src)
-			auto src = read_uint32(notes_fd);
-			fn->blocks[*src].id = *src;
+			auto src = *read_uint32(notes_fd);
+			fn->blocks[src].id = src;
 			uint32_t num_dets = GCOV_TAG_ARCS_NUM(*length);
-			block_info* src_block = &fn->blocks[*src];
+			block_info* src_block = &fn->blocks[src];
 
 			if (src >= fn->blocks.size() || src_block->succ){
 				printf("Corrupted file.\n");
@@ -197,8 +205,13 @@ int read_notes_file(std::string notes_file_name, std::vector<function_info_t*>* 
 
 			// Add all the outgoing destinations
 			for (;num_dets > 0; num_dets--){
-				auto dest = read_uint32(notes_fd);
+				auto dest = *read_uint32(notes_fd);
 				auto flags = *read_uint32(notes_fd);
+
+				if (dest >= fn->blocks.size ()){
+					printf("Dest > block size\n");
+					return 1;				
+				}
 
 				// Allocate arc
 				arc_info* arc = new arc_info;
@@ -206,8 +219,9 @@ int read_notes_file(std::string notes_file_name, std::vector<function_info_t*>* 
 
 				// Setup src and dst connections of arc
 				arc->src = src_block;
-				arc->dst = &fn->blocks[*dest];
-				arc->dst->id = *dest;
+				arc->dst = &fn->blocks[dest];
+				// printf("Dest: %li\n", dest);
+				arc->dst->id = dest;
 
 				// Initialize counts
 
@@ -222,22 +236,22 @@ int read_notes_file(std::string notes_file_name, std::vector<function_info_t*>* 
 				src_block->succ = arc;
 				src_block->num_succ++;
 
-				arc->pred_next = fn->blocks[*dest].pred;
-				fn->blocks[*dest].pred = arc;
-				fn->blocks[*dest].num_pred++;
+				arc->pred_next = fn->blocks[dest].pred;
+				fn->blocks[dest].pred = arc;
+				fn->blocks[dest].num_pred++;
 
 				if (arc->fake) {
-					if (*src) {
+					if (src) {
 						/* Exceptional exit from this function, the
 						source block must be a call.  */
-						fn->blocks[*src].is_call_site = 1;
+						fn->blocks[src].is_call_site = 1;
 						arc->is_call_non_return = 1;
 						mark_catches = 1;
 					} else {
 						/* Non-local return from a callee of this
 						function.  The destination block is a setjmp.  */
 						arc->is_nonlocal_return = 1;
-						fn->blocks[*dest].is_nonlocal_return = 1;
+						fn->blocks[dest].is_nonlocal_return = 1;
 					}
 				}
 
@@ -294,7 +308,7 @@ int read_notes_file(std::string notes_file_name, std::vector<function_info_t*>* 
 		} else {
 
 			printf("Unrecognised tag!\n");
-			return 1;
+			return 0;
 		}
 		// fseek (notes_fd, base_pos, SEEK_SET);		
 	}
@@ -566,7 +580,7 @@ int read_count_file(std::string count_file_name, std::map<uint32_t, function_inf
 	// }
 
 	/* Read checksum.  */
-	read_uint32(count_fd);
+	// read_uint32(count_fd);
 
 	function_info_t *fn = NULL;
 	std::map<uint32_t, function_info_t *>::iterator it;
