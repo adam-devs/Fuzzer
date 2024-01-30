@@ -6,6 +6,7 @@ Ideas:
 Mutate variables into utf-8 
 Mutate very big variables 
 Mutate non-existing variables 
+Merge two CNF files 
 
 */
 
@@ -41,35 +42,36 @@ std::string generate_line(std::set<std::string> variable_list, int max_length, s
 }
 
 std::string random_mutate(
-    std::string cnf_input, 
-    bool enable_num_vars_change     = false, // Risk low level error
-    bool enable_num_clauses_change  = false, // Risk low level error
-    bool enable_correct_pline       = false, // Recommended, overrides enable_num_vars_change and enable_num_clauses_change
-    bool enable_sign_flip           = false, // No risk 
-    float prob_sign_flip            = 0.1, 
-    bool enable_EOL_deletion        = false, // Risk low level error
-    float prob_EOL_deletion         = 0.1, 
-    bool enable_EOL_insertion       = false, // Risk low level error
-    float prob_EOL_insertion        = 0.02, 
-    bool enable_variable_deletion   = false, // No risk with enable_correct_pline
-    float prob_variable_deletion    = 0.1, 
-    bool enable_variable_insertion  = false, // No risk 
-    float prob_variable_insertion   = 0.1,
-    bool enable_line_deletion       = false, // No risk with enable_correct_pline
-    float prob_line_deletion        = 0.2, 
-    bool enable_line_insertion      = false, // No risk with enable_correct_pline
-    float prob_line_insertion       = 0.2, 
-    bool enable_chunk_deletion      = false, // Risk low level error (Nuclear button)
-    int chunk_deletion_times        = 1, 
-    bool enable_chunk_rearrange     = false, // Risk low level error (Nuclear button)
-    int chunk_rearrange_times       = 1
-    )
+    std::string cnf_input          , 
+    bool enable_num_vars_change    ,
+    bool enable_num_clauses_change ,
+    bool enable_correct_pline      ,
+    bool enable_sign_flip          ,
+    float prob_sign_flip           ,
+    bool enable_EOL_deletion       ,
+    float prob_EOL_deletion        ,
+    bool enable_EOL_insertion      ,
+    float prob_EOL_insertion       ,
+    bool enable_variable_deletion  ,
+    float prob_variable_deletion   ,
+    bool enable_variable_insertion ,
+    float prob_variable_insertion  ,
+    bool enable_line_deletion      ,
+    float prob_line_deletion       ,
+    bool enable_line_insertion     ,
+    float prob_line_insertion      ,
+    bool enable_chunk_deletion     ,
+    int chunk_deletion_times       ,
+    bool enable_chunk_rearrange    ,
+    int chunk_rearrange_times      , 
+    unsigned int seed              )
 {
     std::istringstream  isstream(cnf_input); 
     std::string         line; 
 
     std::random_device rd;
     std::mt19937 generator(rd());
+    generator.seed(seed); 
 
     bool in_main_body = false; 
 
@@ -241,9 +243,30 @@ std::string random_mutate(
 
     if (enable_correct_pline)
     {
+        // Find the largest integer in variable_list 
+
+        int largest_var = 1; 
+        for (const auto& str : variable_list) {
+            try 
+            {
+                // Convert string to integer 
+                int variable = std::stoi(str); 
+                // Find Maximum
+                largest_var = std::max(largest_var, variable); 
+            } 
+            // Ignore errors and continue 
+            catch (const std::invalid_argument& ia) 
+            {
+                continue;
+            } 
+            catch (const std::out_of_range& oor) 
+            {
+                continue;
+            }
+        }
         auto num_lines = std::count(main_body_string.begin(), main_body_string.end(), '\n');
         num_lines += (!main_body_string.empty() && main_body_string.back() != '\n');
-        p_line_string = "p cnf " + std::to_string(variable_list.size()) + " " + std::to_string(num_lines) + "\n"; 
+        p_line_string = "p cnf " + std::to_string(largest_var) + " " + std::to_string(num_lines) + "\n"; 
     }
 
     // Distribution for chunk manipulation 
