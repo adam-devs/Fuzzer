@@ -163,6 +163,25 @@ float check_coverage(std::string path_to_SUT, bool debug) {
   }
 }
 
+#define STRATEGIES 5
+#define MUTATIONS 10
+
+void update_strategy(std::tuple<int,int,float> *strat) {
+  if (std::get<1>(*strat) + 1 >= MUTATIONS) {
+    std::get<1>(*strat) = 0;
+    if (std::get<0>(*strat) + 1 >= STRATEGIES) {
+      std::get<0>(*strat) = 0;
+      // TODO: Update mutation based off coverage? 
+      std::get<2>(*strat) += 0.01;
+    } else {
+      std::get<0>(*strat)++;
+    }
+  } else {
+    std::get<1>(*strat)++;
+  }
+
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 4)
@@ -199,24 +218,15 @@ int main(int argc, char *argv[])
     auto start_time = std::chrono::steady_clock::now();
     auto end_time = start_time + std::chrono::seconds(FUZZER_TIMEOUT);
 
-    int action = 0;
-    int n = 5;
+    std::tuple<int,int,float> strategy(0,0,0.0);
 
     float max_coverage = 0.0;
 
     // Main loop
     while (std::chrono::steady_clock::now() < end_time)
     {
-        // Select action as an even split of the time available for n actions
-        int next_action = n -(std::chrono::duration_cast<std::chrono::seconds>(end_time - std::chrono::steady_clock::now()).count() / (2 * n));
-
-        if (next_action != action) {
-          action = next_action;
-          std::cout << "-------------------- Performing action " << std::to_string(action) << " ----------------------" << std::endl;  
-        }
-
         // Run the solver allowing for a timeout of 5 seconds
-        run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, action, path_to_SUT, verbose), std::chrono::seconds(SUT_TIMEOUT));
+        run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
 
         float curr = 0.0;
 
@@ -227,6 +237,9 @@ int main(int argc, char *argv[])
         }
 
         max_coverage = std::max(curr, max_coverage);
+
+        // Update strategy when coverage becomes stagnant
+        update_strategy(&strategy);
 
         // Total time for fuzzing elapsed
         if (std::chrono::steady_clock::now() >= end_time)

@@ -21,23 +21,27 @@ std::string random_number(int length)
 }
 
 // TODO: Generate input based on seed, coverage, etc.
-std::string generate_new_input(int seed, int action, std::string sut_path, bool verbose = false)
+std::string generate_new_input(int seed, std::tuple<int,int,float> *strat, bool verbose = false)
 {
     if (verbose) {
-      std::cout << "Generating input (action: " + std::to_string(action) + ", seed: " + std::to_string(seed) << "): " << std::endl;
-    }
+      std::cout << "S: " << std::get<0>(*strat) << " M: " << std::get<1>(*strat) << " I: " << std::get<2>(*strat) << std::endl;    
+}
+    
+    int strategy = std::get<0>(*strat);
+    int mutation = std::get<1>(*strat);
+    int intensity = std::get<2>(*strat);
 
-    switch (action)
+    switch (strategy)
     {
-    case 1:
+    case 0:
         return generate_sat(10, 10, 10, seed);
-    case 2:
+    case 1:
         return generate_unsat_pigeonhole(6, 5);
-    case 3:
+    case 2:
         return generate_cnf(10000, 10000, 10000, seed);
-    case 4:
+    case 3:
         return generate_sat(1000, 500, 500, seed);
-    case 5:
+    case 4:
         return generate_unsat_combination(12);
     default:
         return generate_sat(5, 10, 10, seed);
