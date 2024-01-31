@@ -186,7 +186,7 @@ float check_coverage(std::string path_to_SUT, bool debug) {
 }
 
 #define STRATEGIES 13
-#define MUTATIONS 15
+#define MUTATIONS 10
 
 void update_strategy(Strategy *strat) {
 
