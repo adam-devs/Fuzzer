@@ -47,6 +47,17 @@ void print_file(std::string content, std::string label)
               << std::endl;
 }
 
+void export_inputs_info(Input *saved) {
+  std::string out = "";
+
+  for (int i = 0; i < 20; i++) {
+    if (saved[i].type != placeholder)
+      out = out + std::to_string(i) + " Type: " + std::to_string(saved[i].type) + "\n";
+  }
+
+  std::cout << out << std::endl;
+}
+
 std::size_t get_hash(std::string output) {
   std::hash<std::string> hasher; 
   return hasher(output); 

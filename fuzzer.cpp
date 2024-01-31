@@ -65,17 +65,6 @@ void initialise_saved_inputs(Input *saved) {
   }
 }
 
-void export_inputs_info(Input *saved) {
-  std::string out = "";  
-
-  for (int i = 0; i < 20; i++) {
-    out = out + std::to_string(i) + " Type: " + std::to_string(saved[i].type) + "\n";
-  }
-
-  std::cout << out << std::endl;
-}
-
-
 bool evaluate_input(Input *saved, undefined_behaviour_t type, std::size_t hash) {
   bool new_type = true;
   bool new_hash = true;
@@ -201,17 +190,17 @@ void update_strategy(Strategy *strat) {
 
   strat->mut_strat = (mutation_strategy_t)((int)strat->mut_strat + 1);
 
-  if((int)strat->mut_strat >= 2 && (int)strat->mut_strat <= 5){
-    strat->mut_strat = choose_mutate_strategy_6_sign_flip;
-  }
+  // if((int)strat->mut_strat >= 2 && (int)strat->mut_strat <= 5){
+  //   strat->mut_strat = choose_mutate_strategy_6_sign_flip;
+  // }
  
-  if((int)strat->mut_strat == 9){
-    strat->mut_strat = choose_mutate_strategy_10_variable_insertion;
-  }
+  // if((int)strat->mut_strat == 9){
+  //   strat->mut_strat = choose_mutate_strategy_10_variable_insertion;
+  // }
 
-  if((int)strat->mut_strat == 14){
-    strat->mut_strat = choose_mutate_strategy_15_controlled_chaos;
-  }
+  // if((int)strat->mut_strat == 14){
+  //   strat->mut_strat = choose_mutate_strategy_15_controlled_chaos;
+  // }
   
   if (strat->mut_strat == choose_mutate_strategy_end){
     strat->gen_strat = (generation_strategy_t)( (int)strat->gen_strat + 1 % choose_mutate_strategy_end);
@@ -219,19 +208,6 @@ void update_strategy(Strategy *strat) {
   }
 
   strat->aggresiveness += 0.01f;
-  // if (std::get<1>(*strat) + 1 >= MUTATIONS) {
-  //   std::get<1>(*strat) = 0;
-  //   if (std::get<0>(*strat) + 1 >= STRATEGIES) {
-  //     std::get<0>(*strat) = 0;
-  //     // TODO: Update mutation based off coverage? 
-  //     std::get<2>(*strat) += 0.01;
-  //   } else {
-  //     std::get<0>(*strat)++;
-  //   }
-  // } else {
-  //   std::get<1>(*strat)++;
-  // }
-
 }
 
 int main(int argc, char *argv[])
@@ -283,7 +259,6 @@ int main(int argc, char *argv[])
     // Main loop
     while (std::chrono::steady_clock::now() < end_time)
     {
-        // Run the solver allowing for a timeout of 5 seconds
         run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
 
         // float curr = 0.0;

@@ -11,6 +11,8 @@
 #define OUTPUT_VLA_BOUND "variable length array"
 #define OUTPUT_HEAP_BUFFER_OVERFLOW "heap-buffer-overflow"
 
+#define SUMMARY "SUMMARY"
+
 // https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
 // Enumeration of all possible UBs detected by UB sanitizer
 enum undefined_behaviour_t {
@@ -30,7 +32,8 @@ enum undefined_behaviour_t {
 	invalid_vla_bound,
 	heap_buffer_overflow,
 
-	uncategorized,
+  uncategorized,
+  error,
   placeholder,
 };
 
