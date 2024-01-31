@@ -202,33 +202,33 @@ void update_strategy(Strategy *strat) {
   // strat->gen_aggresiveness += 0.01f;
 
 
-  if((int)strat->mut_strat >= 2 && (int)strat->mut_strat <= 4){
-    strat->mut_strat = choose_mutate_strategy_5_num_vars_clauses;
-  }
+  // if((int)strat->mut_strat >= 2 && (int)strat->mut_strat <= 4){
+  //   strat->mut_strat = choose_mutate_strategy_5_num_vars_clauses;
+  // }
   
   // if((int)strat->mut_strat == choose_mutate_strategy_10_variable_insertion){
   //   strat->mut_strat= choose_mutate_strategy_11_variable_shuffle;
   // }
 
-  if((int)strat->gen_strat == choose_generate_strategy_5_cnf_long && (int)strat->mut_strat == choose_mutate_strategy_10_variable_insertion){
-    strat->mut_strat = choose_mutate_strategy_11_variable_shuffle;
-  }
- 
   // if((int)strat->gen_strat == choose_generate_strategy_5_cnf_long && (int)strat->mut_strat == choose_mutate_strategy_10_variable_insertion){
   //   strat->mut_strat = choose_mutate_strategy_11_variable_shuffle;
   // }
-  if((int)strat->gen_strat == choose_generate_strategy_7_sat_long){
-    strat->gen_strat = choose_generate_strategy_8_cnf_omit_variable;
-  }
+ 
+  // // if((int)strat->gen_strat == choose_generate_strategy_5_cnf_long && (int)strat->mut_strat == choose_mutate_strategy_10_variable_insertion){
+  // //   strat->mut_strat = choose_mutate_strategy_11_variable_shuffle;
+  // // }
+  // if((int)strat->gen_strat == choose_generate_strategy_7_sat_long){
+  //   strat->gen_strat = choose_generate_strategy_8_cnf_omit_variable;
+  // }
 
  
-  if((int)strat->gen_strat == choose_generate_strategy_7_sat_long && (int)strat->mut_strat == choose_mutate_strategy_11_variable_shuffle){
-    strat->mut_strat= choose_mutate_strategy_12_line_deletion;
-  }
+  // if((int)strat->gen_strat == choose_generate_strategy_7_sat_long && (int)strat->mut_strat == choose_mutate_strategy_11_variable_shuffle){
+  //   strat->mut_strat= choose_mutate_strategy_12_line_deletion;
+  // }
   
-  if((int)strat->gen_strat == choose_generate_strategy_7_sat_long && (int)strat->mut_strat == choose_generate_strategy_13_unsat_pigeon_much_more_than_hole){
-    strat->mut_strat= choose_mutate_strategy_14_line_shuffle;
-  }
+  // if((int)strat->gen_strat == choose_generate_strategy_7_sat_long && (int)strat->mut_strat == choose_generate_strategy_13_unsat_pigeon_much_more_than_hole){
+  //   strat->mut_strat= choose_mutate_strategy_14_line_shuffle;
+  // }
   // if((int)strat->mut_strat == 14){
   //   strat->mut_strat = choose_mutate_strategy_15_controlled_chaos;
   // }

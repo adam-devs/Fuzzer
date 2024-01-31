@@ -603,11 +603,12 @@ std::string generate_new_input(int seed, Strategy *strat, bool verbose = false)
     generation_strategy_t generation_strategy = strat->gen_strat;
     mutation_strategy_t   mutation_strategy   = strat->mut_strat;
 
-    float aggresiveness = strat->aggresiveness; 
+    float gen_aggresiveness = strat->gen_aggresiveness;    
+    float mut_aggresiveness = strat->mut_aggresiveness; 
 
     if (verbose || true) 
     {
-      std::cout << "Gen_Strat: " << generation_strategy << " Mutate_Strat: " << mutation_strategy << " Scaling: " << aggresiveness << std::endl;    
+      std::cout << "Gen_Strat: " << generation_strategy << " Mutate_Strat: " << mutation_strategy << " Scaling: " << gen_aggresiveness << std::endl;    
     }
 
     // Initate generator for parameter generation 
@@ -621,31 +622,31 @@ std::string generate_new_input(int seed, Strategy *strat, bool verbose = false)
     switch (generation_strategy) 
     {
         case choose_generate_strategy_1_random:
-            cnf_file = generate_strategy_1_random(generator, aggresiveness);
+            cnf_file = generate_strategy_1_random(generator, gen_aggresiveness);
             break;
         case choose_generate_strategy_2_random_with_pline:
-            cnf_file = generate_strategy_2_random_with_pline(generator, aggresiveness); 
+            cnf_file = generate_strategy_2_random_with_pline(generator, gen_aggresiveness); 
             break;
         case choose_generate_strategy_3_cnf:
-            cnf_file = generate_strategy_3_cnf(generator, seed, aggresiveness); 
+            cnf_file = generate_strategy_3_cnf(generator, seed, gen_aggresiveness); 
             break;
         case choose_generate_strategy_4_sat: 
-            cnf_file = generate_strategy_4_sat(generator, seed, aggresiveness); 
+            cnf_file = generate_strategy_4_sat(generator, seed, gen_aggresiveness); 
             break;
         case choose_generate_strategy_5_cnf_omit_variable: 
-            cnf_file = generate_strategy_5_cnf_omit_variable(generator, seed, aggresiveness); 
+            cnf_file = generate_strategy_5_cnf_omit_variable(generator, seed, gen_aggresiveness); 
             break;
         case choose_generate_strategy_6_unsat_combination:  
-            cnf_file = generate_strategy_6_unsat_combination(generator, aggresiveness); 
+            cnf_file = generate_strategy_6_unsat_combination(generator, gen_aggresiveness); 
             break;
         case choose_generate_strategy_7_unsat_pigeonhole: 
-            cnf_file = generate_strategy_7_unsat_pigeonhole(generator, aggresiveness); 
+            cnf_file = generate_strategy_7_unsat_pigeonhole(generator, gen_aggresiveness); 
             break;
         case choose_generate_strategy_8_unsat_pigeon_much_more_than_hole: 
-            cnf_file = generate_strategy_8_unsat_pigeon_much_more_than_hole(generator, aggresiveness); 
+            cnf_file = generate_strategy_8_unsat_pigeon_much_more_than_hole(generator, gen_aggresiveness); 
             break; 
         default:
-            cnf_file = generate_strategy_3_cnf(generator, seed, aggresiveness); 
+            cnf_file = generate_strategy_3_cnf(generator, seed, gen_aggresiveness); 
             break; 
     }
 
@@ -656,46 +657,46 @@ std::string generate_new_input(int seed, Strategy *strat, bool verbose = false)
             cnf_file = mutate_strategy_1_nothing(cnf_file); 
             break;
         case choose_mutate_strategy_2_chunk_deletion: 
-            cnf_file = mutate_strategy_2_chunk_deletion(cnf_file, seed, aggresiveness); 
+            cnf_file = mutate_strategy_2_chunk_deletion(cnf_file, seed, mut_aggresiveness); 
             break;
         case choose_mutate_strategy_3_chunk_rearrange_once: 
-            cnf_file = mutate_strategy_3_chunk_rearrange_once(cnf_file, seed, aggresiveness); 
+            cnf_file = mutate_strategy_3_chunk_rearrange_once(cnf_file, seed, mut_aggresiveness); 
             break;
         case choose_mutate_strategy_4_chunk_rearrange_multiple: 
-            cnf_file = mutate_strategy_4_chunk_rearrange_multiple(cnf_file, seed, aggresiveness); 
+            cnf_file = mutate_strategy_4_chunk_rearrange_multiple(cnf_file, seed, mut_aggresiveness); 
             break;
         case choose_mutate_strategy_5_num_vars_clauses: 
             cnf_file = mutate_strategy_5_num_vars_clauses(cnf_file, seed); 
             break;
         case choose_mutate_strategy_6_sign_flip: 
-            cnf_file = mutate_strategy_6_sign_flip(cnf_file, seed, aggresiveness); 
+            cnf_file = mutate_strategy_6_sign_flip(cnf_file, seed, mut_aggresiveness); 
             break;
         case choose_mutate_strategy_7_eol_deletion: 
-            cnf_file = mutate_strategy_7_eol_deletion(cnf_file, seed, aggresiveness); 
+            cnf_file = mutate_strategy_7_eol_deletion(cnf_file, seed, mut_aggresiveness); 
             break;
         case choose_mutate_strategy_8_eol_insertoin: 
-            cnf_file = mutate_strategy_8_eol_insertoin(cnf_file, seed, aggresiveness); 
+            cnf_file = mutate_strategy_8_eol_insertoin(cnf_file, seed, mut_aggresiveness); 
             break;
         case choose_mutate_strategy_9_variable_deletion: 
-            cnf_file = mutate_strategy_9_variable_deletion(cnf_file, seed, aggresiveness); 
+            cnf_file = mutate_strategy_9_variable_deletion(cnf_file, seed, mut_aggresiveness); 
             break;
         case choose_mutate_strategy_10_variable_insertion: 
-            cnf_file = mutate_strategy_10_variable_insertion(cnf_file, seed, aggresiveness); 
+            cnf_file = mutate_strategy_10_variable_insertion(cnf_file, seed, mut_aggresiveness); 
             break;
         case choose_mutate_strategy_11_variable_shuffle: 
-            cnf_file = mutate_strategy_11_variable_shuffle(cnf_file, seed, aggresiveness); 
+            cnf_file = mutate_strategy_11_variable_shuffle(cnf_file, seed, mut_aggresiveness); 
             break;
         case choose_mutate_strategy_12_line_deletion:
-            cnf_file = mutate_strategy_12_line_deletion(cnf_file, seed, aggresiveness); 
+            cnf_file = mutate_strategy_12_line_deletion(cnf_file, seed, mut_aggresiveness); 
             break;
         case choose_mutate_strategy_13_line_insertion: 
-            cnf_file = mutate_strategy_13_line_insertion(cnf_file, seed, aggresiveness); 
+            cnf_file = mutate_strategy_13_line_insertion(cnf_file, seed, mut_aggresiveness); 
             break;
         case choose_mutate_strategy_14_line_shuffle: 
-            cnf_file = mutate_strategy_14_line_shuffle(cnf_file, seed, aggresiveness); 
+            cnf_file = mutate_strategy_14_line_shuffle(cnf_file, seed, mut_aggresiveness); 
             break;
         case choose_mutate_strategy_15_controlled_chaos: 
-            cnf_file = mutate_strategy_15_controlled_chaos(cnf_file, seed, aggresiveness); 
+            cnf_file = mutate_strategy_15_controlled_chaos(cnf_file, seed, mut_aggresiveness); 
             break; 
         default: 
             cnf_file = mutate_strategy_1_nothing(cnf_file); 
