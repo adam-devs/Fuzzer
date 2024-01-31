@@ -672,7 +672,7 @@ std::string generate_new_input(int seed, Strategy *strat, bool verbose = false)
 
     float aggresiveness = strat->aggresiveness; 
 
-    if (verbose) 
+    if (verbose || true) 
     {
       std::cout << "Gen_Strat: " << generation_strategy << " Mutate_Strat: " << mutation_strategy << " Scaling: " << aggresiveness << std::endl;    
     }
