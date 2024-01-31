@@ -41,6 +41,26 @@ std::string generate_line(std::set<std::string> variable_list, int max_length, s
     return generated_line + "0";
 }
 
+std::string chunk_deletion(std::mt19937 generator, std::string &input_string)
+{
+    // Get deletion size 
+    std::uniform_int_distribution<size_t> d_chunk_size(0, input_string.size() - 2); 
+    size_t chunk_size = d_chunk_size(generator); 
+
+    // Get deletion site
+    std::uniform_int_distribution<size_t> d_deletion_site(0, input_string.size() - chunk_size - 1); 
+    size_t deletion_site = d_deletion_site(generator); 
+
+    std::cout << deletion_site << std::endl; 
+    std::cout << input_string.size() << std::endl; 
+
+    std::string remaining_string = input_string.substr(deletion_site, chunk_size); 
+
+    input_string.erase(deletion_site, chunk_size); 
+
+    return remaining_string; 
+}
+
 std::string random_mutate(
     std::string cnf_input          , 
     bool enable_num_vars_change    ,
@@ -270,16 +290,15 @@ std::string random_mutate(
     }
 
     // Distribution for chunk manipulation 
-    long string_size; 
+    std::string *operating_string; 
     if (main_body_string.size() == 0)
     {
-        string_size = prefix_string.size(); 
+        operating_string = &prefix_string; 
     }
-    else 
+    else
     {
-        string_size = prefix_string.size(); 
+        operating_string = &main_body_string; 
     }
-    std::uniform_int_distribution<long> d_rand_location_1(1, string_size - 2);
 
     // Precedence of deletion / rearrange is debatable 
     // Delete an arbitrary chunk of the cnf main body if enabled and triggered 
@@ -287,17 +306,7 @@ std::string random_mutate(
     {
         for (int i = 0; i < chunk_deletion_times; i++)
         {
-            long location_1 = d_rand_location_1(generator);
-            std::uniform_int_distribution<long> d_rand_location_2(location_1, string_size - 1);
-            long location_2 = d_rand_location_2(generator); 
-            if (main_body_string.size() == 0)
-            {
-                prefix_string.erase(location_1, location_2 - location_1); 
-            }
-            else 
-            {
-                main_body_string.erase(location_1, location_2 - location_1); 
-            }
+            chunk_deletion(generator, *operating_string); 
         }
     }
 
@@ -306,30 +315,12 @@ std::string random_mutate(
     {
         for (int i = 0; i < chunk_rearrange_times; i++)
         {
-            long location_1 = d_rand_location_1(generator); 
-            std::uniform_int_distribution<long> d_rand_location_2(location_1, string_size - 1);
-            long location_2 = d_rand_location_2(generator); 
-            std::string selected_chunk; 
-            if (main_body_string.size() == 0)
-            {
-                selected_chunk = std::string(&main_body_string[location_1], &main_body_string[location_2]); \
-                main_body_string.erase(location_1, location_2 - location_1); 
-            }
-            else 
-            {
-                selected_chunk = std::string(&prefix_string[location_1], &prefix_string[location_2]);
-                prefix_string.erase(location_1, location_2 - location_1); 
-            }
-            std::uniform_int_distribution<long> d_rand_location(0, string_size - 1); 
-            long insertion_site = d_rand_location(generator); 
-            if (main_body_string.size() == 0)
-            {
-                main_body_string.insert(insertion_site, selected_chunk); 
-            }
-            else 
-            {
-                prefix_string.insert(insertion_site, selected_chunk); 
-            }
+            std::string remaining_string = chunk_deletion(generator, *operating_string); 
+            
+            std::uniform_int_distribution<size_t> d_injection_site(0, remaining_string.size() - 1); 
+            size_t injection_site = d_injection_site(generator); 
+
+            operating_string->insert(injection_site, remaining_string); 
         }
     }
 
