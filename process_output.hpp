@@ -11,15 +11,17 @@
 #define OUTPUT_VLA_BOUND "variable length array"
 #define OUTPUT_HEAP_BUFFER_OVERFLOW "heap-buffer-overflow"
 #define OUTPUT_WILD_POINTER "wild pointer"
+#define MISALIGNED_ADDRESS "misaligned address"
 
-#define SUMMARY "SUMMARY"
+#define SAT "SAT"
+#define UNSAT "UNSAT"
 
 // https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
 // Enumeration of all possible UBs detected by UB sanitizer
 enum undefined_behaviour_t {
 	ub_start,
 
-	aligment, // Use of misaligned pointer
+	alignment, // Use of misaligned pointer
 	bool_load, // Load of bool which is neither true or false.
 	enum_load, // Load of enum value which is not representable in that enum type
 	float_cast_overflow,
@@ -35,7 +37,7 @@ enum undefined_behaviour_t {
 	wild_pointer,
 
 	uncategorized,
-	error,
+	no_error,
 	placeholder,
 };
 

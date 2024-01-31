@@ -106,7 +106,7 @@ std::string random_mutate(
     // Distributions for boolean mutation choices 
     std::bernoulli_distribution d_sign_flip(prob_sign_flip);
     std::bernoulli_distribution d_EOL_deletion(prob_EOL_deletion); 
-    std::bernoulli_distribution d_EOL_insertion(prob_EOL_deletion); 
+    std::bernoulli_distribution d_EOL_insertion(prob_EOL_insertion); 
     std::bernoulli_distribution d_variable_deletion(prob_variable_deletion);
     std::bernoulli_distribution d_variable_insertion(prob_variable_insertion);
     std::bernoulli_distribution d_line_deletion(prob_line_deletion);
@@ -203,7 +203,7 @@ std::string random_mutate(
             std::string reassembled_line; 
 
             // Reassemble line with variable insertion / deletion 
-            for (int i = 0; i < line_variables.size(); i++)
+            for (long unsigned int i = 0; i < line_variables.size(); i++)
             {   
                 // Skip variable if enabled and triggered
                 if (enable_variable_deletion && line_variables[i] != "0" && line_variables.size() > 4)

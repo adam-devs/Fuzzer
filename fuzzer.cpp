@@ -2,7 +2,7 @@
 #include "coverage.hpp"
 #include "generate.hpp"
 
-#define FUZZER_TIMEOUT 60
+#define FUZZER_TIMEOUT 200
 #define SUT_TIMEOUT 5
 
 std::string FILENAME = "current-test.cnf";
@@ -82,15 +82,19 @@ bool evaluate_input(Input *saved, undefined_behaviour_t type, std::size_t hash) 
   int priority = 0;  
 
   // Calculate priority from seen/unseen type or address
-  if (new_type && new_hash) {
+  if (type == no_error || type == uncategorized) {
+    priority = 0;
+  } else if (new_type && new_hash) {
     priority = 4;
   } else if (new_type && !new_hash) {
     priority = 3;
   } else if (!new_type && new_hash) {
-    priority = 0;
- } else {
-    priority = 0;
+    priority = 2;
+  } else {
+    priority = 1;
   }
+
+ 
 
   int min_priority = 99;
   int min_index = -1;
@@ -183,8 +187,8 @@ float check_coverage(std::string path_to_SUT, bool debug) {
   }
 }
 
-#define STRATEGIES 5
-#define MUTATIONS 10
+#define STRATEGIES 13
+#define MUTATIONS 15
 
 void update_strategy(Strategy *strat) {
 
@@ -259,7 +263,15 @@ int main(int argc, char *argv[])
     // Main loop
     while (std::chrono::steady_clock::now() < end_time)
     {
-        run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
+        std::get<0>(input_strat) = static_cast<generation_strategy_t>(std::get<0>(strategy));
+        std::get<1>(input_strat) = static_cast<mutation_strategy_t>(std::get<1>(strategy));  
+    
+        //if ((std::get<1>(strategy) < 1 || std::get<1>(strategy) > 6) && std::get<1>(strategy) != 9) {
+        int mut = std::get<1>(strategy);
+        if ((mut < 2 || mut > 4) && mut != 9 && mut != 12) {
+        // Run the solver allowing for a timeout of 5 seconds
+          run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &input_strat, verbose), std::chrono::seconds(SUT_TIMEOUT));
+        }
 
         // float curr = 0.0;
         // if (path_to_SUT == "solvers/minisat") {
