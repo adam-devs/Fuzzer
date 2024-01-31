@@ -175,7 +175,7 @@ int read_notes_file(std::string notes_file_name, std::vector<function_info_t*>* 
 
 			if (fn->artificial == true){
 				printf("This function is artificial!");
-				return 1;
+//				return 1;
 			}
 	
 			current_tag = tag;

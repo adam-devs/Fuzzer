@@ -1,5 +1,6 @@
 #include "generate.hpp"
 #include "generate_sat.hpp"
+#include "coverage.hpp" 
 
 #define NUM "0123456789"
 
@@ -20,26 +21,30 @@ std::string random_number(int length)
 }
 
 // TODO: Generate input based on seed, coverage, etc.
-std::string generate_new_input(std::string seed, int action, bool verbose = false)
+std::string generate_new_input(int seed, std::tuple<int,int,float> *strat, bool verbose = false)
 {
     if (verbose) {
-      std::cout << "Generating input (action: " + std::to_string(action) + ", seed: " + seed << "): " << std::endl;
-    }
+      std::cout << "S: " << std::get<0>(*strat) << " M: " << std::get<1>(*strat) << " I: " << std::get<2>(*strat) << std::endl;    
+}
+    
+    int strategy = std::get<0>(*strat);
+    int mutation = std::get<1>(*strat);
+    int intensity = std::get<2>(*strat);
 
-    switch (action)
+    switch (strategy)
     {
+    case 0:
+        return generate_sat(10, 10, 10, seed);
     case 1:
-        return generate_sat(10, 10, 10);
+        return generate_unsat_pigeonhole(6, 5);
     case 2:
-        return generate_unsat_pigeonhole(10, 9);
+        return generate_cnf(10000, 10000, 10000, seed);
     case 3:
-        return generate_sat(2, 10, 10);
+        return generate_sat(1000, 500, 500, seed);
     case 4:
-        return generate_sat(1, 1, 1);
-    case 5:
-        return generate_sat(5, 5, 5);
+        return generate_unsat_combination(12);
     default:
-        return generate_sat(1, 1, 1);
+        return generate_sat(5, 10, 10, seed);
     }
 
 }
