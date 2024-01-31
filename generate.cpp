@@ -663,14 +663,14 @@ std::string mutate_strategy_15_controlled_chaos(std::string cnf_input, int seed,
 }
 
 
-std::string generate_new_input(int seed, std::tuple<generation_strategy_t,mutation_strategy_t,float> *strat, bool verbose = false)
+std::string generate_new_input(int seed, Strategy *strat, bool verbose = false)
 {   
 
     // Get command from top level 
-    generation_strategy_t generation_strategy = std::get<0>(*strat);
-    mutation_strategy_t   mutation_strategy   = std::get<1>(*strat);
+    generation_strategy_t generation_strategy = strat->gen_strat;
+    mutation_strategy_t   mutation_strategy   = strat->mut_strat;
 
-    float aggresiveness = std::get<2>(*strat); 
+    float aggresiveness = strat->aggresiveness; 
 
     if (verbose) 
     {
