@@ -141,10 +141,10 @@ std::string generate_strategy_7_unsat_pigeonhole(std::mt19937 generator, float a
 // Condition: num_pigeons is much greater than num_holes 
 std::string generate_strategy_8_unsat_pigeon_much_more_than_hole(std::mt19937 generator, float aggresiveness)
 {
-    int num_pigeons = 4 * aggresiveness; 
+    int num_pigeons = 4 * aggresiveness + 1; 
 
     // Distribution for drawing number of variables and clauses 
-    std::uniform_int_distribution<int> d_num_pigeons(5, num_pigeons); 
+    std::uniform_int_distribution<int> d_num_pigeons(2, num_pigeons); 
     num_pigeons = d_num_pigeons(generator); 
 
     return generate_unsat_pigeonhole(num_pigeons, num_pigeons/2); 
