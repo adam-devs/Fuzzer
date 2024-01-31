@@ -9,19 +9,14 @@
 // Enumeration of generation strategies 
 enum generation_strategy_t
 {
-    choose_generate_strategy_1_random_short,
-    choose_generate_strategy_2_random_long,
-    choose_generate_strategy_3_random_with_pline,
-    choose_generate_strategy_4_cnf_short,
-    choose_generate_strategy_5_cnf_long,
-    choose_generate_strategy_6_sat_short,
-    choose_generate_strategy_7_sat_long,
-    choose_generate_strategy_8_cnf_omit_variable,
-    choose_generate_strategy_9_unsat_combination_short,
-    choose_generate_strategy_10_unsat_combination_long,
-    choose_generate_strategy_11_unsat_pigeonhole_short, 
-    choose_generate_strategy_12_unsat_pigeonhole_long, 
-    choose_generate_strategy_13_unsat_pigeon_much_more_than_hole,
+    choose_generate_strategy_1_random,
+    choose_generate_strategy_2_random_with_pline,
+    choose_generate_strategy_3_cnf,
+    choose_generate_strategy_4_sat,
+    choose_generate_strategy_5_cnf_omit_variable,
+    choose_generate_strategy_6_unsat_combination,
+    choose_generate_strategy_7_unsat_pigeonhole, 
+    choose_generate_strategy_8_unsat_pigeon_much_more_than_hole,
 
     choose_generate_strategy_end,
 }; 

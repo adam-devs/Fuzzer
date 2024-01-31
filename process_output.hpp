@@ -12,6 +12,8 @@
 #define OUTPUT_HEAP_BUFFER_OVERFLOW "heap-buffer-overflow"
 #define OUTPUT_WILD_POINTER "wild pointer"
 #define MISALIGNED_ADDRESS "misaligned address"
+#define SEG_FAULT "SEGV on unknown address"
+#define SANITIZER "Sanitizer"
 
 #define SAT "SAT"
 #define UNSAT "UNSAT"
@@ -36,6 +38,8 @@ enum undefined_behaviour_t {
 	heap_buffer_overflow,
 	wild_pointer,
 
+  seg_fault,
+  error,
 	uncategorized,
 	no_error,
 	placeholder,

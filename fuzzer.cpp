@@ -2,7 +2,7 @@
 #include "coverage.hpp"
 #include "generate.hpp"
 
-#define FUZZER_TIMEOUT 60
+#define FUZZER_TIMEOUT 200
 #define SUT_TIMEOUT 5
 
 std::string FILENAME = "current-test.cnf";
@@ -82,14 +82,18 @@ bool evaluate_input(Input *saved, undefined_behaviour_t type, std::size_t hash) 
   int priority = 0;  
 
   // Calculate priority from seen/unseen type or address
-  if (new_type && new_hash) {
+  if (type == no_error || type == uncategorized) {
+    priority = 0;
+  } else if (new_type && new_hash) {
     priority = 4;
   } else if (new_type && !new_hash) {
     priority = 3;
   } else if (!new_type && new_hash) {
-    priority = 0;
- } else {
-    priority = 0;
+    priority = 2;
+  } else if (type == error) {
+    priority = 2;  
+  } else {
+    priority = 1;
   }
 
   int min_priority = 99;
@@ -183,8 +187,8 @@ float check_coverage(std::string path_to_SUT, bool debug) {
   }
 }
 
-#define STRATEGIES 5
-#define MUTATIONS 10
+#define STRATEGIES 13
+#define MUTATIONS 15
 
 void update_strategy(Strategy *strat) {
   
