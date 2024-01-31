@@ -263,14 +263,10 @@ int main(int argc, char *argv[])
     // Main loop
     while (std::chrono::steady_clock::now() < end_time)
     {
-        std::get<0>(input_strat) = static_cast<generation_strategy_t>(std::get<0>(strategy));
-        std::get<1>(input_strat) = static_cast<mutation_strategy_t>(std::get<1>(strategy));  
-    
-        //if ((std::get<1>(strategy) < 1 || std::get<1>(strategy) > 6) && std::get<1>(strategy) != 9) {
-        int mut = std::get<1>(strategy);
+        int mut = (int)strategy.mut_strat;
         if ((mut < 2 || mut > 4) && mut != 9 && mut != 12) {
         // Run the solver allowing for a timeout of 5 seconds
-          run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &input_strat, verbose), std::chrono::seconds(SUT_TIMEOUT));
+          run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
         }
 
         // float curr = 0.0;

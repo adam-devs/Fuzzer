@@ -13,21 +13,15 @@ undefined_behaviour_t process_output(std::string output) {
 		return invalid_vla_bound;
 	} else if (std::string::npos != output.find(OUTPUT_HEAP_BUFFER_OVERFLOW)){
 		return heap_buffer_overflow;
-<<<<<<< HEAD
 	} else if (std::string::npos != output.find(OUTPUT_WILD_POINTER)){
 	    return wild_pointer;
-	} else if (std::string::npos != output.find(SUMMARY)){
-  		return error;
-	} else {
-=======
 	} else if (std::string::npos != output.find(SAT)){
-    return no_error;
+	    return no_error;
   } else if (std::string::npos != output.find(MISALIGNED_ADDRESS)) {
-    return alignment;
+	    return alignment;
   } else if (std::string::npos != output.find(UNSAT))
-    return no_error;  
+	    return no_error;  
   else {
->>>>>>> edc2f1ca3f0bcdce01f80b974e4e3c0b5ea004e6
 		return uncategorized;
 	}	
 }
