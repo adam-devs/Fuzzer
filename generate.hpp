@@ -41,4 +41,4 @@ enum mutation_strategy_t
     choose_mutate_strategy_15_controlled_chaos
 }; 
 
-std::string generate_new_input(int seed, std::tuple<int,int,float> *strat, bool verbose);
+std::string generate_new_input(int seed, std::tuple<generation_strategy_t,mutation_strategy_t,float> *strat, bool verbose);

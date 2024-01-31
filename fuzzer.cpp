@@ -65,17 +65,6 @@ void initialise_saved_inputs(Input *saved) {
   }
 }
 
-void export_inputs_info(Input *saved) {
-  std::string out = "";  
-
-  for (int i = 0; i < 20; i++) {
-    out = out + std::to_string(i) + " Type: " + std::to_string(saved[i].type) + "\n";
-  }
-
-  std::cout << out << std::endl;
-}
-
-
 bool evaluate_input(Input *saved, undefined_behaviour_t type, std::size_t hash) {
   bool new_type = true;
   bool new_hash = true;
@@ -203,7 +192,7 @@ void update_strategy(std::tuple<int,int,float> *strat) {
     if (std::get<0>(*strat) + 1 >= STRATEGIES) {
       std::get<0>(*strat) = 0;
       // TODO: Update mutation based off coverage? 
-      std::get<2>(*strat) += 0.01;
+      // std::get<2>(*strat) += 0.01;
     } else {
       std::get<0>(*strat)++;
     }
@@ -250,7 +239,8 @@ int main(int argc, char *argv[])
     auto start_time = std::chrono::steady_clock::now();
     auto end_time = start_time + std::chrono::seconds(FUZZER_TIMEOUT);
 
-    std::tuple<int,int,float> strategy(0,0,0.0);
+    std::tuple<generation_strategy_t,mutation_strategy_t,float> input_strat(static_cast<generation_strategy_t>(0),static_cast<mutation_strategy_t>(0),1.0);
+    std::tuple<int,int,float> strategy(0,0,1.0);
 
     std::optional<coverage> aggregrate_coverage = {};
     std::string coverage_dir = std::string(path_to_SUT);
@@ -262,8 +252,14 @@ int main(int argc, char *argv[])
     // Main loop
     while (std::chrono::steady_clock::now() < end_time)
     {
+        std::get<0>(input_strat) = static_cast<generation_strategy_t>(std::get<0>(strategy));
+        std::get<1>(input_strat) = static_cast<mutation_strategy_t>(std::get<1>(strategy));  
+    
+        //if ((std::get<1>(strategy) < 1 || std::get<1>(strategy) > 6) && std::get<1>(strategy) != 9) {
+        if (std::get<1>(strategy) == 0) {
         // Run the solver allowing for a timeout of 5 seconds
-        run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
+        run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &input_strat, verbose), std::chrono::seconds(SUT_TIMEOUT));
+        }
 
         // float curr = 0.0;
         // if (path_to_SUT == "solvers/minisat") {

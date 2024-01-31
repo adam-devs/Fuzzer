@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Wall -Wextra --std=c++17
+CFLAGS = -Wall -Wextra -fsanitize=address -g --std=c++17
 
 all: fuzzer
 fuzzer: fuzzer.o generate.o generate_sat.o mutate.o coverage.o process_output.o
