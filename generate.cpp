@@ -41,7 +41,7 @@ std::string generate_random_string(std::mt19937 generator, long min_length, long
 
 // ======== GENERATION STRATEGY #1 ========
 // Generates a short random string 
-std::string generate_strategy_1_random_short(std::mt19937 generator, float aggresiveness)
+std::string generate_strategy_1_random(std::mt19937 generator, float aggresiveness)
 {
     long min_length = 100 * aggresiveness; 
     long max_length = 1000 * aggresiveness; 
@@ -50,18 +50,8 @@ std::string generate_strategy_1_random_short(std::mt19937 generator, float aggre
 }
 
 // ======== GENERATION STRATEGY #2 ========
-// Generates a long random string 
-std::string generate_strategy_2_random_long(std::mt19937 generator, float aggresiveness)
-{
-    long min_length = 100 * aggresiveness; 
-    long max_length = 100000 * aggresiveness; 
-
-    return generate_random_string(generator, min_length, max_length); 
-}
-
-// ======== GENERATION STRATEGY #3 ========
 // Generates a string with a dummy p_line  
-std::string generate_strategy_3_random_with_pline(std::mt19937 generator, float aggresiveness)
+std::string generate_strategy_2_random_with_pline(std::mt19937 generator, float aggresiveness)
 {
     long min_length = 100 * aggresiveness; 
     long max_length = 1000 * aggresiveness; 
@@ -73,9 +63,9 @@ std::string generate_strategy_3_random_with_pline(std::mt19937 generator, float 
     return dummy_p_line + generate_random_string(generator, min_length, max_length); 
 }
 
-// ======== GENERATION STRATEGY #4 ========
+// ======== GENERATION STRATEGY #3 ========
 // Generates a short well-formed cnf file 
-std::string generate_strategy_4_cnf_short(std::mt19937 generator, int seed, float aggresiveness)
+std::string generate_strategy_3_cnf(std::mt19937 generator, int seed, float aggresiveness)
 {
     int num_vars    = 10 * aggresiveness; 
     int num_clauses = 20 * aggresiveness; 
@@ -89,13 +79,29 @@ std::string generate_strategy_4_cnf_short(std::mt19937 generator, int seed, floa
     return generate_cnf(d_num_vars(generator), d_num_clauses(generator), d_max_clauses(generator), seed); 
 }
 
-// ======== GENERATION STRATEGY #5 ========
-// Generates a long well-formed cnf file 
-std::string generate_strategy_5_cnf_long(std::mt19937 generator, int seed, float aggresiveness)
+// ======== GENERATION STRATEGY #4 ========
+// Generates a short well-formed cnf file that is guaranteed to be SAT 
+std::string generate_strategy_4_sat(std::mt19937 generator, int seed, float aggresiveness)
 {
-    int num_vars    = 10000 * aggresiveness; 
-    int num_clauses = 20000 * aggresiveness; 
-    int max_clauses = 20000 * aggresiveness; 
+    int num_vars    = 10 * aggresiveness; 
+    int num_clauses = 20 * aggresiveness; 
+    int max_clauses = 20 * aggresiveness; 
+
+    // Distribution for drawing number of variables and clauses 
+    std::uniform_int_distribution<int> d_num_vars(2, num_vars); 
+    std::uniform_int_distribution<int> d_num_clauses(1, num_clauses); 
+    std::uniform_int_distribution<int> d_max_clauses(1, max_clauses); 
+
+    return generate_sat(d_num_vars(generator), d_num_clauses(generator), d_max_clauses(generator), seed); 
+}
+
+// ======== GENERATION STRATEGY #5 ========
+// Generates a well-formed cnf file that omits variables in clauses 
+std::string generate_strategy_5_cnf_omit_variable(std::mt19937 generator, int seed, float aggresiveness)
+{
+    int num_vars    = 60 * aggresiveness; 
+    int num_clauses = 20 * aggresiveness; 
+    int max_clauses = 20 * aggresiveness; 
 
     // Distribution for drawing number of variables and clauses 
     std::uniform_int_distribution<int> d_num_vars(2, num_vars); 
@@ -106,82 +112,22 @@ std::string generate_strategy_5_cnf_long(std::mt19937 generator, int seed, float
 }
 
 // ======== GENERATION STRATEGY #6 ========
-// Generates a short well-formed cnf file that is guaranteed to be SAT 
-std::string generate_strategy_6_sat_short(std::mt19937 generator, int seed, float aggresiveness)
+// Generates a short well-formed cnf file with combinations that is guaranteed UNSAT 
+std::string generate_strategy_6_unsat_combination(std::mt19937 generator, float aggresiveness)
 {
-    int num_vars    = 10 * aggresiveness; 
-    int num_clauses = 20 * aggresiveness; 
-    int max_clauses = 20 * aggresiveness; 
+    int num_combination = 3 * aggresiveness; 
 
     // Distribution for drawing number of variables and clauses 
-    std::uniform_int_distribution<int> d_num_vars(2, num_vars); 
-    std::uniform_int_distribution<int> d_num_clauses(1, num_clauses); 
-    std::uniform_int_distribution<int> d_max_clauses(1, max_clauses); 
+    std::uniform_int_distribution<int> d_num_combination(1, num_combination); 
 
-    return generate_sat(d_num_vars(generator), d_num_clauses(generator), d_max_clauses(generator), seed); 
+    return generate_unsat_combination(d_num_combination(generator)); 
 }
 
 // ======== GENERATION STRATEGY #7 ========
-// Generates a long well-formed cnf file that is guaranteed to be SAT 
-std::string generate_strategy_7_sat_long(std::mt19937 generator, int seed, float aggresiveness)
-{
-    int num_vars    = 10000 * aggresiveness; 
-    int num_clauses = 20000 * aggresiveness; 
-    int max_clauses = 20000 * aggresiveness; 
-
-    // Distribution for drawing number of variables and clauses 
-    std::uniform_int_distribution<int> d_num_vars(2, num_vars); 
-    std::uniform_int_distribution<int> d_num_clauses(1, num_clauses); 
-    std::uniform_int_distribution<int> d_max_clauses(1, max_clauses); 
-
-    return generate_sat(d_num_vars(generator), d_num_clauses(generator), d_max_clauses(generator), seed); 
-}
-
-// ======== GENERATION STRATEGY #8 ========
-// Generates a well-formed cnf file that omits variables in clauses 
-std::string generate_strategy_8_cnf_omit_variable(std::mt19937 generator, int seed, float aggresiveness)
-{
-    int num_vars    = 1000 * aggresiveness; 
-    int num_clauses = 200 * aggresiveness; 
-    int max_clauses = 200 * aggresiveness; 
-
-    // Distribution for drawing number of variables and clauses 
-    std::uniform_int_distribution<int> d_num_vars(2, num_vars); 
-    std::uniform_int_distribution<int> d_num_clauses(1, num_clauses); 
-    std::uniform_int_distribution<int> d_max_clauses(1, max_clauses); 
-
-    return generate_cnf(d_num_vars(generator), d_num_clauses(generator), d_max_clauses(generator), seed); 
-}
-
-// ======== GENERATION STRATEGY #9 ========
-// Generates a short well-formed cnf file with combinations that is guaranteed UNSAT 
-std::string generate_strategy_9_unsat_combination_short(std::mt19937 generator, float aggresiveness)
-{
-    int num_combination = 8 * aggresiveness; 
-
-    // Distribution for drawing number of variables and clauses 
-    std::uniform_int_distribution<int> d_num_combination(2, num_combination); 
-
-    return generate_unsat_combination(d_num_combination(generator)); 
-}
-
-// ======== GENERATION STRATEGY #10 ========
-// Generates a long well-formed cnf file with combinations that is guaranteed UNSAT 
-std::string generate_strategy_10_unsat_combination_long(std::mt19937 generator, float aggresiveness)
-{
-    int num_combination = 18 * aggresiveness; 
-
-    // Distribution for drawing number of variables and clauses 
-    std::uniform_int_distribution<int> d_num_combination(8, num_combination); 
-
-    return generate_unsat_combination(d_num_combination(generator)); 
-}
-
-// ======== GENERATION STRATEGY #11 ========
 // Generates a short well-formed cnf file using pigeonhole that is guaranteed UNSAT 
-std::string generate_strategy_11_unsat_pigeonhole_short(std::mt19937 generator, float aggresiveness)
+std::string generate_strategy_7_unsat_pigeonhole(std::mt19937 generator, float aggresiveness)
 {
-    int num_pigeons = 12 * aggresiveness; 
+    int num_pigeons = 4 * aggresiveness; 
 
     // Distribution for drawing number of variables and clauses 
     std::uniform_int_distribution<int> d_num_pigeons(2, num_pigeons); 
@@ -190,25 +136,12 @@ std::string generate_strategy_11_unsat_pigeonhole_short(std::mt19937 generator, 
     return generate_unsat_pigeonhole(num_pigeons, num_pigeons - 1); 
 }
 
-// ======== GENERATION STRATEGY #12 ========
-// Generates a long well-formed cnf file using pigeonhole that is guaranteed UNSAT 
-std::string generate_strategy_12_unsat_pigeonhole_long(std::mt19937 generator, float aggresiveness)
-{
-    int num_pigeons = 40 * aggresiveness; 
-
-    // Distribution for drawing number of variables and clauses 
-    std::uniform_int_distribution<int> d_num_pigeons(10, num_pigeons); 
-    num_pigeons = d_num_pigeons(generator); 
-
-    return generate_unsat_pigeonhole(num_pigeons, num_pigeons - 1); 
-}
-
-// ======== GENERATION STRATEGY #13 ========
+// ======== GENERATION STRATEGY #8 ========
 // Generates a long well-formed cnf file using pigeonhole that is guaranteed UNSAT
 // Condition: num_pigeons is much greater than num_holes 
-std::string generate_strategy_13_unsat_pigeon_much_more_than_hole(std::mt19937 generator, float aggresiveness)
+std::string generate_strategy_8_unsat_pigeon_much_more_than_hole(std::mt19937 generator, float aggresiveness)
 {
-    int num_pigeons = 30 * aggresiveness; 
+    int num_pigeons = 4 * aggresiveness; 
 
     // Distribution for drawing number of variables and clauses 
     std::uniform_int_distribution<int> d_num_pigeons(5, num_pigeons); 
@@ -687,47 +620,32 @@ std::string generate_new_input(int seed, Strategy *strat, bool verbose = false)
     // Choose generation strategy
     switch (generation_strategy) 
     {
-        case choose_generate_strategy_1_random_short:
-            cnf_file = generate_strategy_1_random_short(generator, aggresiveness);
+        case choose_generate_strategy_1_random:
+            cnf_file = generate_strategy_1_random(generator, aggresiveness);
             break;
-        case choose_generate_strategy_2_random_long:
-            cnf_file = generate_strategy_2_random_long(generator, aggresiveness);
+        case choose_generate_strategy_2_random_with_pline:
+            cnf_file = generate_strategy_2_random_with_pline(generator, aggresiveness); 
             break;
-        case choose_generate_strategy_3_random_with_pline:
-            cnf_file = generate_strategy_3_random_with_pline(generator, aggresiveness); 
+        case choose_generate_strategy_3_cnf:
+            cnf_file = generate_strategy_3_cnf(generator, seed, aggresiveness); 
             break;
-        case choose_generate_strategy_4_cnf_short:
-            cnf_file = generate_strategy_4_cnf_short(generator, seed, aggresiveness); 
+        case choose_generate_strategy_4_sat: 
+            cnf_file = generate_strategy_4_sat(generator, seed, aggresiveness); 
             break;
-        case choose_generate_strategy_5_cnf_long:
-            cnf_file = generate_strategy_5_cnf_long(generator, seed, aggresiveness); 
+        case choose_generate_strategy_5_cnf_omit_variable: 
+            cnf_file = generate_strategy_5_cnf_omit_variable(generator, seed, aggresiveness); 
             break;
-        case choose_generate_strategy_6_sat_short: 
-            cnf_file = generate_strategy_6_sat_short(generator, seed, aggresiveness); 
+        case choose_generate_strategy_6_unsat_combination:  
+            cnf_file = generate_strategy_6_unsat_combination(generator, aggresiveness); 
             break;
-        case choose_generate_strategy_7_sat_long: 
-            cnf_file = generate_strategy_7_sat_long(generator, seed, aggresiveness); 
+        case choose_generate_strategy_7_unsat_pigeonhole: 
+            cnf_file = generate_strategy_7_unsat_pigeonhole(generator, aggresiveness); 
             break;
-        case choose_generate_strategy_8_cnf_omit_variable: 
-            cnf_file = generate_strategy_8_cnf_omit_variable(generator, seed, aggresiveness); 
-            break;
-        case choose_generate_strategy_9_unsat_combination_short:  
-            cnf_file = generate_strategy_9_unsat_combination_short(generator, aggresiveness); 
-            break;
-        case choose_generate_strategy_10_unsat_combination_long: 
-            cnf_file = generate_strategy_10_unsat_combination_long(generator, aggresiveness);
-            break;
-        case choose_generate_strategy_11_unsat_pigeonhole_short: 
-            cnf_file = generate_strategy_11_unsat_pigeonhole_short(generator, aggresiveness); 
-            break;
-        case choose_generate_strategy_12_unsat_pigeonhole_long: 
-            cnf_file = generate_strategy_12_unsat_pigeonhole_long(generator, aggresiveness); 
-            break;
-        case choose_generate_strategy_13_unsat_pigeon_much_more_than_hole: 
-            cnf_file = generate_strategy_13_unsat_pigeon_much_more_than_hole(generator, aggresiveness); 
+        case choose_generate_strategy_8_unsat_pigeon_much_more_than_hole: 
+            cnf_file = generate_strategy_8_unsat_pigeon_much_more_than_hole(generator, aggresiveness); 
             break; 
         default:
-            cnf_file = generate_strategy_4_cnf_short(generator, seed, aggresiveness); 
+            cnf_file = generate_strategy_3_cnf(generator, seed, aggresiveness); 
             break; 
     }
 
