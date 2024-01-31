@@ -270,7 +270,7 @@ std::string random_mutate(
     }
 
     // Distribution for chunk manipulation 
-    std::uniform_int_distribution<long> d_rand_location_1(0, main_body_string.size() - 2);
+    std::uniform_int_distribution<long> d_rand_location_1(1, main_body_string.size() - 2);
 
     // Precedence of deletion / rearrange is debatable 
     // Delete an arbitrary chunk of the cnf main body if enabled and triggered 
