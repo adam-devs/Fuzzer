@@ -198,9 +198,9 @@ void update_strategy(Strategy *strat) {
   //   strat->mut_strat = choose_mutate_strategy_10_variable_insertion;
   // }
 
-  // if((int)strat->mut_strat == 14){
-  //   strat->mut_strat = choose_mutate_strategy_15_controlled_chaos;
-  // }
+  if((int)strat->mut_strat == 14){
+    strat->mut_strat = choose_mutate_strategy_15_controlled_chaos;
+  }
   
   if (strat->mut_strat == choose_mutate_strategy_end){
     strat->gen_strat = (generation_strategy_t)( (int)strat->gen_strat + 1 % choose_mutate_strategy_end);
@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
     auto start_time = std::chrono::steady_clock::now();
     auto end_time = start_time + std::chrono::seconds(FUZZER_TIMEOUT);
 
-    Strategy strategy = {};
+    Strategy strategy = {.aggresiveness = 0.6f};
 
     std::optional<coverage> aggregrate_coverage = {};
     std::string coverage_dir = std::string(path_to_SUT);
