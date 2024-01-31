@@ -52,7 +52,8 @@ typedef struct
 {
   generation_strategy_t gen_strat; 
   mutation_strategy_t mut_strat;
-  float aggresiveness;
+  float gen_aggresiveness;
+  float mut_aggresiveness;
 } Strategy;
 
 std::string generate_new_input(int seed, Strategy *strat, bool verbose);

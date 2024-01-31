@@ -129,7 +129,7 @@ void run_solver(std::string path_to_SUT, Input *saved, std::string input)
     std::ifstream input_stream(FILENAME);
     std::string input_content((std::istreambuf_iterator<char>(input_stream)),
                               std::istreambuf_iterator<char>());
-    if (verbose) print_file(input_content, "INPUT");
+    // if (verbose) print_file(input_content, "INPUT");
 
     std::string run_solver = path_to_SUT + "/runsat.sh " + FILENAME;
 
@@ -187,27 +187,48 @@ float check_coverage(std::string path_to_SUT, bool debug) {
 #define MUTATIONS 10
 
 void update_strategy(Strategy *strat) {
-
+  
   strat->mut_strat = (mutation_strategy_t)((int)strat->mut_strat + 1);
 
-  // if((int)strat->mut_strat >= 2 && (int)strat->mut_strat <= 5){
-  //   strat->mut_strat = choose_mutate_strategy_6_sign_flip;
-  // }
- 
-  // if((int)strat->mut_strat == 9){
-  //   strat->mut_strat = choose_mutate_strategy_10_variable_insertion;
-  // }
-
-  if((int)strat->mut_strat == 14){
-    strat->mut_strat = choose_mutate_strategy_15_controlled_chaos;
-  }
   
-  if (strat->mut_strat == choose_mutate_strategy_end){
+  if (strat->mut_strat >= choose_mutate_strategy_end){
     strat->gen_strat = (generation_strategy_t)( (int)strat->gen_strat + 1 % choose_mutate_strategy_end);
     strat->mut_strat = (mutation_strategy_t)( (int)strat->mut_strat % choose_mutate_strategy_end);
   }
+  // strat->gen_aggresiveness += 0.01f;
 
-  strat->aggresiveness += 0.01f;
+
+  if((int)strat->mut_strat >= 2 && (int)strat->mut_strat <= 4){
+    strat->mut_strat = choose_mutate_strategy_5_num_vars_clauses;
+  }
+  
+  // if((int)strat->mut_strat == choose_mutate_strategy_10_variable_insertion){
+  //   strat->mut_strat= choose_mutate_strategy_11_variable_shuffle;
+  // }
+
+  if((int)strat->gen_strat == choose_generate_strategy_5_cnf_long && (int)strat->mut_strat == choose_mutate_strategy_10_variable_insertion){
+    strat->mut_strat = choose_mutate_strategy_11_variable_shuffle;
+  }
+ 
+  // if((int)strat->gen_strat == choose_generate_strategy_5_cnf_long && (int)strat->mut_strat == choose_mutate_strategy_10_variable_insertion){
+  //   strat->mut_strat = choose_mutate_strategy_11_variable_shuffle;
+  // }
+  if((int)strat->gen_strat == choose_generate_strategy_7_sat_long){
+    strat->gen_strat = choose_generate_strategy_8_cnf_omit_variable;
+  }
+
+ 
+  if((int)strat->gen_strat == choose_generate_strategy_7_sat_long && (int)strat->mut_strat == choose_mutate_strategy_11_variable_shuffle){
+    strat->mut_strat= choose_mutate_strategy_12_line_deletion;
+  }
+  
+  if((int)strat->gen_strat == choose_generate_strategy_7_sat_long && (int)strat->mut_strat == choose_generate_strategy_13_unsat_pigeon_much_more_than_hole){
+    strat->mut_strat= choose_mutate_strategy_14_line_shuffle;
+  }
+  // if((int)strat->mut_strat == 14){
+  //   strat->mut_strat = choose_mutate_strategy_15_controlled_chaos;
+  // }
+
 }
 
 int main(int argc, char *argv[])
@@ -247,7 +268,7 @@ int main(int argc, char *argv[])
     auto start_time = std::chrono::steady_clock::now();
     auto end_time = start_time + std::chrono::seconds(FUZZER_TIMEOUT);
 
-    Strategy strategy = {.aggresiveness = 0.6f};
+    Strategy strategy = {.gen_aggresiveness = 0.6f};
 
     std::optional<coverage> aggregrate_coverage = {};
     std::string coverage_dir = std::string(path_to_SUT);
@@ -259,15 +280,12 @@ int main(int argc, char *argv[])
     // Main loop
     while (std::chrono::steady_clock::now() < end_time)
     {
-<<<<<<< HEAD
-        int mut = (int)strategy.mut_strat;
-        if ((mut < 2 || mut > 4) && mut != 9 && mut != 12) {
+        // int mut = (int)strategy.mut_strat;
+        // if ((mut < 2 || mut > 4) && mut != 9 && mut != 12) {
         // Run the solver allowing for a timeout of 5 seconds
-          run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
-        }
-=======
+          // run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
+        // }
         run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
->>>>>>> 83d0dff043ca6b8f1929a990051300f37d9a3189
 
         // float curr = 0.0;
         // if (path_to_SUT == "solvers/minisat") {

@@ -93,9 +93,9 @@ std::string generate_strategy_4_cnf_short(std::mt19937 generator, int seed, floa
 // Generates a long well-formed cnf file 
 std::string generate_strategy_5_cnf_long(std::mt19937 generator, int seed, float aggresiveness)
 {
-    int num_vars    = 10000 * aggresiveness; 
-    int num_clauses = 20000 * aggresiveness; 
-    int max_clauses = 20000 * aggresiveness; 
+    int num_vars    = 1000 * aggresiveness; 
+    int num_clauses = 2000 * aggresiveness; 
+    int max_clauses = 2000 * aggresiveness; 
 
     // Distribution for drawing number of variables and clauses 
     std::uniform_int_distribution<int> d_num_vars(2, num_vars); 
