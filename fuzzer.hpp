@@ -15,7 +15,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "generate.hpp"
 #include "process_output.hpp"
+
+#ifndef FUZZER_HPP
+#define FUZZER_HPP
 
 typedef struct
 { 
@@ -23,6 +27,7 @@ typedef struct
   undefined_behaviour_t type;
   std::size_t hash;
 } Input;
+
 
 void create_file(std::string filename, std::string content)
 {
@@ -58,3 +63,4 @@ std::size_t get_hash(std::string output) {
   return hasher(output); 
 }
 
+#endif

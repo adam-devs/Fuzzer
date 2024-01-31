@@ -190,20 +190,28 @@ float check_coverage(std::string path_to_SUT, bool debug) {
 #define STRATEGIES 13
 #define MUTATIONS 15
 
-void update_strategy(std::tuple<int,int,float> *strat) {
-  if (std::get<1>(*strat) + 1 >= MUTATIONS) {
-    std::get<1>(*strat) = 0;
-    if (std::get<0>(*strat) + 1 >= STRATEGIES) {
-      std::get<0>(*strat) = 0;
-      // TODO: Update mutation based off coverage? 
-      // std::get<2>(*strat) += 0.01;
-    } else {
-      std::get<0>(*strat)++;
-    }
-  } else {
-    std::get<1>(*strat)++;
+void update_strategy(Strategy *strat) {
+
+  strat->mut_strat = (mutation_strategy_t)((int)strat->mut_strat + 1);
+
+  // if((int)strat->mut_strat >= 2 && (int)strat->mut_strat <= 5){
+  //   strat->mut_strat = choose_mutate_strategy_6_sign_flip;
+  // }
+ 
+  // if((int)strat->mut_strat == 9){
+  //   strat->mut_strat = choose_mutate_strategy_10_variable_insertion;
+  // }
+
+  // if((int)strat->mut_strat == 14){
+  //   strat->mut_strat = choose_mutate_strategy_15_controlled_chaos;
+  // }
+  
+  if (strat->mut_strat == choose_mutate_strategy_end){
+    strat->gen_strat = (generation_strategy_t)( (int)strat->gen_strat + 1 % choose_mutate_strategy_end);
+    strat->mut_strat = (mutation_strategy_t)( (int)strat->mut_strat % choose_mutate_strategy_end);
   }
 
+  strat->aggresiveness += 0.01f;
 }
 
 int main(int argc, char *argv[])
@@ -243,8 +251,7 @@ int main(int argc, char *argv[])
     auto start_time = std::chrono::steady_clock::now();
     auto end_time = start_time + std::chrono::seconds(FUZZER_TIMEOUT);
 
-    std::tuple<generation_strategy_t,mutation_strategy_t,float> input_strat(static_cast<generation_strategy_t>(0),static_cast<mutation_strategy_t>(0),1.0);
-    std::tuple<int,int,float> strategy(0,0,1.0);
+    Strategy strategy = {};
 
     std::optional<coverage> aggregrate_coverage = {};
     std::string coverage_dir = std::string(path_to_SUT);
