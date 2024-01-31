@@ -323,7 +323,7 @@ std::string mutate_strategy_4_chunk_rearrange_multiple(std::string cnf_input, in
 
 // ======== MUTATION STRATEGY #5 ========
 // Mutate num_vars and num_clauses 
-std::string mutate_strategy_5_num_vars_clauses(std::string cnf_input, int seed, float aggresiveness)
+std::string mutate_strategy_5_num_vars_clauses(std::string cnf_input, int seed)
 {
     return random_mutate(
     cnf_input, 
@@ -747,7 +747,7 @@ std::string generate_new_input(int seed, Strategy *strat, bool verbose = false)
             cnf_file = mutate_strategy_4_chunk_rearrange_multiple(cnf_file, seed, aggresiveness); 
             break;
         case choose_mutate_strategy_5_num_vars_clauses: 
-            cnf_file = mutate_strategy_5_num_vars_clauses(cnf_file, seed, aggresiveness); 
+            cnf_file = mutate_strategy_5_num_vars_clauses(cnf_file, seed); 
             break;
         case choose_mutate_strategy_6_sign_flip: 
             cnf_file = mutate_strategy_6_sign_flip(cnf_file, seed, aggresiveness); 
