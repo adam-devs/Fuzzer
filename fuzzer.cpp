@@ -61,7 +61,7 @@ void initialise_saved_inputs(Input *saved) {
   for (int i = 0; i < 20; i++) {
     saved[i].type = placeholder;
     saved[i].priority = 0;
-    saved[i].address = "0xADDRESS";
+    saved[i].hash = get_hash("empty");
   }
 }
 
@@ -70,40 +70,37 @@ void export_inputs_info(Input *saved) {
 
   for (int i = 0; i < 20; i++) {
     out = out + std::to_string(i) + " Type: " + std::to_string(saved[i].type) + "\n";
-
-//    saved[i].priority = 0;
-//    saved[i].address = "0xADDRESS";
   }
 
   std::cout << out << std::endl;
 }
 
 
-bool evaluate_input(Input *saved, undefined_behaviour_t type, std::string address) {
+bool evaluate_input(Input *saved, undefined_behaviour_t type, std::size_t hash) {
   bool new_type = true;
-  bool new_address = true;
+  bool new_hash = true;
 
   for (int i = 0; i < 20; i++) {
     if (saved[i].type == type) {
       new_type = false;
     }
     
-    if (saved[i].address == address) {
-      new_address = false;
+    if (saved[i].hash == hash) {
+      new_hash = false;
     }
   }
 
   int priority = 0;  
 
   // Calculate priority from seen/unseen type or address
-  if (new_type && new_address) {
+  if (new_type && new_hash) {
     priority = 4;
-  } else if (!new_address && new_type) {
+  } else if (new_type && !new_hash) {
     priority = 3;
-  } else if (!new_type && new_address) {
-    priority = 2;
+  } else if (!new_type && new_hash) {
+    priority = 0;
  } else {
-    priority = 1;
+    priority = 0;
   }
 
   int min_priority = 99;
@@ -127,7 +124,7 @@ bool evaluate_input(Input *saved, undefined_behaviour_t type, std::string addres
     // Remove lowest priority from the list, append current input 
     saved[min_index].priority = priority;
     saved[min_index].type = type;    
-    saved[min_index].address = address;
+    saved[min_index].hash = hash;
     return true;      
   }
 
@@ -159,7 +156,9 @@ void run_solver(std::string path_to_SUT, Input *saved, std::string input)
     if (verbose) print_file(output_content, "OUTPUT");
     
     undefined_behaviour_t error_type = process_output(output_content);
-    evaluate_input(saved, error_type, "0x0000");
+    std::size_t hash = get_hash(output_content);
+        
+    evaluate_input(saved, error_type, hash);
 }
 
 void run_solver_with_timeout(std::string path_to_SUT, Input *saved, std::string input, std::chrono::seconds timeout)
@@ -236,6 +235,7 @@ int main(int argc, char *argv[])
     }
 
     // Create directory for interesting inputs
+    std::system("rm -rf fuzzed-tests");
     std::system("mkdir fuzzed-tests");
 
     // List of wellformed inputs

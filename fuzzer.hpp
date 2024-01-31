@@ -21,7 +21,7 @@ typedef struct
 { 
   int priority;
   undefined_behaviour_t type;
-  std::string address;
+  std::size_t hash;
 } Input;
 
 void create_file(std::string filename, std::string content)
@@ -41,3 +41,9 @@ void print_file(std::string content, std::string label)
               << "~~~~~~~~~~~~~~~~~~~ " << label << " ~~~~~~~~~~~~~~~~~~~"
               << std::endl;
 }
+
+std::size_t get_hash(std::string output) {
+  std::hash<std::string> hasher; 
+  return hasher(output); 
+}
+
