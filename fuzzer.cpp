@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
     while (std::chrono::steady_clock::now() < end_time)
     {
         int mut = (int)strategy.mut_strat;
-        if ((mut < 2 || mut > 4) && mut != 9 && mut != 12) {
+        if ((mut < 2 || mut > 4) && mut != 9 && mut != 12 && mut != 10 && mut != 14) {
         // Run the solver allowing for a timeout of 5 seconds
           run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
         }
