@@ -131,7 +131,7 @@ void run_solver(std::string path_to_SUT, Input *saved, std::string input)
     std::ifstream input_stream(FILENAME);
     std::string input_content((std::istreambuf_iterator<char>(input_stream)),
                               std::istreambuf_iterator<char>());
-    if (verbose) print_file(input_content, "INPUT");
+    //if (verbose) print_file(input_content, "INPUT");
 
     std::string run_solver = path_to_SUT + "/runsat.sh " + FILENAME;
 
@@ -186,7 +186,7 @@ float check_coverage(std::string path_to_SUT, bool debug) {
 }
 
 #define STRATEGIES 13
-#define MUTATIONS 10
+#define MUTATIONS 15
 
 void update_strategy(Strategy *strat) {
 
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
     while (std::chrono::steady_clock::now() < end_time)
     {
         int mut = (int)strategy.mut_strat;
-        if ((mut < 2 || mut > 4) && mut != 9 && mut != 12 && mut != 10 && mut != 14) {
+        if ((mut < 2 || mut > 4) && mut != 9 && mut != 12 && mut != 10 && mut != 13 && mut != 14) {
         // Run the solver allowing for a timeout of 5 seconds
           run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
         }
