@@ -28,6 +28,7 @@ typedef struct {
 } coverage_diff;
 
 
+std::optional<coverage*> aggregrate_coverage(coverage* aggregate, coverage* cur);
 std::optional<coverage_diff> calc_coverage_diff(coverage* prev, coverage* cur);
 std::optional<coverage> arc_coverage_all_files(std::string directory, bool debug);
 void print_coverage_info(coverage* coverage);

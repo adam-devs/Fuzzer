@@ -28,7 +28,7 @@ std::optional<coverage> arc_coverage_all_files(std::string directory, bool debug
 
 	
 	for(auto dir_file : dir_files){
-		printf("Dir file: %s\n", dir_file.filename().c_str());
+		// printf("Dir file: %s\n", dir_file.filename().c_str());
 		
 		if (dir_file.extension() == ".gcda") {
 			count_file_name = dir_file;
@@ -157,6 +157,32 @@ std::optional<coverage_diff> calc_coverage_diff(coverage* prev, coverage* cur){
     }
 	return diff;
 }
+
+
+std::optional<coverage*> aggregrate_coverage(coverage* aggregate, coverage* cur){
+	
+	if (aggregate->arc_coverage.size() != cur->arc_coverage.size() || aggregate->function_coverage.size() != cur->function_coverage.size()){
+		printf("Aggregation failed: The current coverage and aggregate coverage do not have matching dimensions.");
+		return {};
+	}
+		
+	for (size_t i = 0; i < aggregate->arc_coverage.size(); i++) {
+    	if (aggregate->arc_coverage[i] == false && cur->arc_coverage[i] == true){
+			aggregate->arcs_executed++;
+		}
+		aggregate->arc_coverage[i] = cur->arc_coverage[i] | aggregate->arc_coverage[i];
+	}
+
+	for (size_t i = 0; i < aggregate->function_coverage.size(); i++) {
+    	if (aggregate->function_coverage[i] == false && cur->function_coverage[i] == true){
+			aggregate->functions_executed++;
+		}
+		aggregate->function_coverage[i] = cur->function_coverage[i] | aggregate->function_coverage[i];
+    }
+
+	return aggregate;
+}
+
 
 void print_coverage_info(coverage* coverage){
 	printf("Covered %i/%i unique arcs.\n", coverage->arcs_executed, coverage->arcs);
