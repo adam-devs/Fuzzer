@@ -248,7 +248,7 @@ std::string random_mutate(
                 }
             }
             // Remove trailing space for parsing 
-            reassembled_line.erase(reassembled_line.size()-1, reassembled_line.size()); 
+            reassembled_line.erase(reassembled_line.size(), 1); 
 
             main_body_string += reassembled_line + "\n"; 
         }
