@@ -270,7 +270,16 @@ std::string random_mutate(
     }
 
     // Distribution for chunk manipulation 
-    std::uniform_int_distribution<long> d_rand_location_1(1, main_body_string.size() - 2);
+    long string_size; 
+    if (main_body_string.size() == 0)
+    {
+        string_size = prefix_string.size(); 
+    }
+    else 
+    {
+        string_size = prefix_string.size(); 
+    }
+    std::uniform_int_distribution<long> d_rand_location_1(1, string_size - 2);
 
     // Precedence of deletion / rearrange is debatable 
     // Delete an arbitrary chunk of the cnf main body if enabled and triggered 
@@ -279,9 +288,16 @@ std::string random_mutate(
         for (int i = 0; i < chunk_deletion_times; i++)
         {
             long location_1 = d_rand_location_1(generator);
-            std::uniform_int_distribution<long> d_rand_location_2(location_1, main_body_string.size() - 1);
+            std::uniform_int_distribution<long> d_rand_location_2(location_1, string_size - 1);
             long location_2 = d_rand_location_2(generator); 
-            main_body_string.erase(location_1, location_2 - location_1); 
+            if (main_body_string.size() == 0)
+            {
+                prefix_string.erase(location_1, location_2 - location_1); 
+            }
+            else 
+            {
+                main_body_string.erase(location_1, location_2 - location_1); 
+            }
         }
     }
 
@@ -291,13 +307,29 @@ std::string random_mutate(
         for (int i = 0; i < chunk_rearrange_times; i++)
         {
             long location_1 = d_rand_location_1(generator); 
-            std::uniform_int_distribution<long> d_rand_location_2(location_1, main_body_string.size() - 1);
+            std::uniform_int_distribution<long> d_rand_location_2(location_1, string_size - 1);
             long location_2 = d_rand_location_2(generator); 
-            std::string selected_chunk = std::string(&main_body_string[location_1], &main_body_string[location_2]); 
-            main_body_string.erase(location_1, location_2 - location_1); 
-            std::uniform_int_distribution<long> d_rand_location(0, main_body_string.size() - 1); 
+            std::string selected_chunk; 
+            if (main_body_string.size() == 0)
+            {
+                selected_chunk = std::string(&main_body_string[location_1], &main_body_string[location_2]); \
+                main_body_string.erase(location_1, location_2 - location_1); 
+            }
+            else 
+            {
+                selected_chunk = std::string(&prefix_string[location_1], &prefix_string[location_2]);
+                prefix_string.erase(location_1, location_2 - location_1); 
+            }
+            std::uniform_int_distribution<long> d_rand_location(0, string_size - 1); 
             long insertion_site = d_rand_location(generator); 
-            main_body_string.insert(insertion_site, selected_chunk); 
+            if (main_body_string.size() == 0)
+            {
+                main_body_string.insert(insertion_site, selected_chunk); 
+            }
+            else 
+            {
+                prefix_string.insert(insertion_site, selected_chunk); 
+            }
         }
     }
 
