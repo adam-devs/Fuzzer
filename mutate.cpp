@@ -51,9 +51,6 @@ std::string chunk_deletion(std::mt19937 generator, std::string &input_string)
     std::uniform_int_distribution<size_t> d_deletion_site(0, input_string.size() - chunk_size - 1); 
     size_t deletion_site = d_deletion_site(generator); 
 
-    std::cout << deletion_site << std::endl; 
-    std::cout << input_string.size() << std::endl; 
-
     std::string remaining_string = input_string.substr(deletion_site, chunk_size); 
 
     input_string.erase(deletion_site, chunk_size); 
@@ -317,7 +314,7 @@ std::string random_mutate(
         {
             std::string remaining_string = chunk_deletion(generator, *operating_string); 
             
-            std::uniform_int_distribution<size_t> d_injection_site(0, remaining_string.size() - 1); 
+            std::uniform_int_distribution<size_t> d_injection_site(0, operating_string->size() - 1); 
             size_t injection_site = d_injection_site(generator); 
 
             operating_string->insert(injection_site, remaining_string); 
