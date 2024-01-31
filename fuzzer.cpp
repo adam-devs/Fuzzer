@@ -90,7 +90,9 @@ bool evaluate_input(Input *saved, undefined_behaviour_t type, std::size_t hash) 
     priority = 3;
   } else if (!new_type && new_hash) {
     priority = 2;
- } else {
+  } else if (type == error) {
+    priority = 2;  
+  } else {
     priority = 1;
   }
 
