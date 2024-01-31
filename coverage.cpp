@@ -159,7 +159,7 @@ std::optional<coverage_diff> calc_coverage_diff(coverage* prev, coverage* cur){
 }
 
 
-std::optional<coverage*> aggregrate_coverage(coverage* aggregate, coverage* cur){
+std::optional<coverage*> calc_aggregrate_coverage(coverage* aggregate, coverage* cur){
 	
 	if (aggregate->arc_coverage.size() != cur->arc_coverage.size() || aggregate->function_coverage.size() != cur->function_coverage.size()){
 		printf("Aggregation failed: The current coverage and aggregate coverage do not have matching dimensions.");
@@ -185,6 +185,6 @@ std::optional<coverage*> aggregrate_coverage(coverage* aggregate, coverage* cur)
 
 
 void print_coverage_info(coverage* coverage){
-	printf("Covered %i/%i unique arcs.\n", coverage->arcs_executed, coverage->arcs);
-	printf("Covered %i/%i unique functions.\n", coverage->functions_executed, coverage->functions);
+	printf("Covered %i/%i (%f \%) unique arcs.\n", coverage->arcs_executed, coverage->arcs, ( (float)coverage->arcs_executed)/((float)coverage->arcs) * 100.0f);
+	printf("Covered %i/%i (%f \%) unique functions.\n", coverage->functions_executed, coverage->functions, ( (float)coverage->functions_executed)/((float)coverage->functions) * 100.0f);
 }

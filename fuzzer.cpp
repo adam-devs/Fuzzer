@@ -252,7 +252,12 @@ int main(int argc, char *argv[])
 
     std::tuple<int,int,float> strategy(0,0,0.0);
 
-    float max_coverage = 0.0;
+    std::optional<coverage> aggregrate_coverage = {};
+    std::string coverage_dir = std::string(path_to_SUT);
+    // TODO: Remove this condition for release/submission
+    if (path_to_SUT == "solvers/minisat/"){
+      coverage_dir = std::string("solvers/minisat/core");
+    }
 
     // Main loop
     while (std::chrono::steady_clock::now() < end_time)
@@ -260,15 +265,23 @@ int main(int argc, char *argv[])
         // Run the solver allowing for a timeout of 5 seconds
         run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
 
-        float curr = 0.0;
+        // float curr = 0.0;
+        // if (path_to_SUT == "solvers/minisat") {
+        //   curr = check_coverage("solvers/minisat/core", verbose); 
+        // } else {
+        //   curr = check_coverage(path_to_SUT, verbose);
+        // }
 
-        if (path_to_SUT == "solvers/minisat") {
-          //curr = check_coverage("solvers/minisat/core", verbose); 
-        } else {
-          //curr = check_coverage(path_to_SUT, verbose);
+        if(aggregrate_coverage.has_value() == false){
+          aggregrate_coverage = arc_coverage_all_files(coverage_dir, false);
         }
 
-        max_coverage = std::max(curr, max_coverage);
+        coverage cur_coverage = *arc_coverage_all_files(coverage_dir, false);
+        coverage_diff coverage_diff = *calc_coverage_diff(&aggregrate_coverage.value(), &cur_coverage);
+        calc_aggregrate_coverage(&aggregrate_coverage.value(), &cur_coverage);
+
+
+        // max_coverage = std::max(curr, max_coverage);
 
         // Update strategy when coverage becomes stagnant
         update_strategy(&strategy);
@@ -280,7 +293,8 @@ int main(int argc, char *argv[])
 
     // Once working will need to check coverage every loop
     // to make decisions on exploration vs exploitation   
-    std::cout << "Max Coverage: " << std::to_string(max_coverage) << std::endl;
+    std::cout << "Aggregrate Coverage: " << std::endl;
+    print_coverage_info(&aggregrate_coverage.value());
   
     //Print info about saved inputs  
     export_inputs_info(saved_inputs);
