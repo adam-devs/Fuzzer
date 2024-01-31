@@ -25,6 +25,38 @@ std::string exec(const char *cmd)
     return result;
 }
 
+
+int interruptible_system(const char *cmd) {
+  if (cmd == NULL){
+    return 1;
+  }
+
+  pid_t pid = fork();
+
+  if (pid == -1){
+    // Could not fork.
+    return -1;
+  } else if (pid == 0){
+    // This is the child. Run the command.
+    int exec_res = execl("/bin/sh", "sh", "-c", cmd, (char*) NULL);
+    if (exec_res){
+      exit(1);
+    } else {
+      exit(0);
+    }
+  
+  } else {
+    // Wait for all children to finish.
+    int child_res;
+    int wait_res = waitpid(-1, &child_res, 0);
+    if (wait_res){
+      return wait_res;
+    } else {
+      return child_res;
+    }
+  }
+}
+
 void initialise_saved_inputs(Input *saved) { 
   for (int i = 0; i < 20; i++) {
     saved[i].type = placeholder;
@@ -118,7 +150,7 @@ void run_solver(std::string path_to_SUT, Input *saved, std::string input)
     // Redirect SUT output to file
     std::string output_file = "output.txt";
     std::string redirect_output = run_solver + " > " + output_file + " 2>&1";
-    std::system(redirect_output.c_str());
+    interruptible_system(redirect_output.c_str());
 
     // Read output file
     std::ifstream output_stream(output_file);

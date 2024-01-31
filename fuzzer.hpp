@@ -11,6 +11,10 @@
 #include <future>
 #include <algorithm>
 #include <tuple>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
 #include "process_output.hpp"
 
 typedef struct
