@@ -2,7 +2,7 @@
 #include "coverage.hpp"
 #include "generate.hpp"
 
-#define FUZZER_TIMEOUT 60
+#define FUZZER_TIMEOUT 200
 #define SUT_TIMEOUT 5
 
 std::string FILENAME = "current-test.cnf";
@@ -82,14 +82,16 @@ bool evaluate_input(Input *saved, undefined_behaviour_t type, std::size_t hash) 
   int priority = 0;  
 
   // Calculate priority from seen/unseen type or address
-  if (new_type && new_hash) {
+  if (type == no_error || type == uncategorized) {
+    priority = 0;
+  } else if (new_type && new_hash) {
     priority = 4;
   } else if (new_type && !new_hash) {
     priority = 3;
   } else if (!new_type && new_hash) {
-    priority = 0;
+    priority = 2;
  } else {
-    priority = 0;
+    priority = 1;
   }
 
   int min_priority = 99;
@@ -183,8 +185,8 @@ float check_coverage(std::string path_to_SUT, bool debug) {
   }
 }
 
-#define STRATEGIES 5
-#define MUTATIONS 10
+#define STRATEGIES 13
+#define MUTATIONS 15
 
 void update_strategy(Strategy *strat) {
 
@@ -259,15 +261,11 @@ int main(int argc, char *argv[])
     // Main loop
     while (std::chrono::steady_clock::now() < end_time)
     {
-<<<<<<< HEAD
         int mut = (int)strategy.mut_strat;
         if ((mut < 2 || mut > 4) && mut != 9 && mut != 12) {
         // Run the solver allowing for a timeout of 5 seconds
           run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
         }
-=======
-        run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
->>>>>>> 83d0dff043ca6b8f1929a990051300f37d9a3189
 
         // float curr = 0.0;
         // if (path_to_SUT == "solvers/minisat") {
