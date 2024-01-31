@@ -4,12 +4,12 @@
 #include <future>
 #include <thread>
 
-#define FUZZER_TIMEOUT 40
+#define FUZZER_TIMEOUT 200
 #define SUT_TIMEOUT 5
 
 #define FIFO_SIZE 5
 
-#define GEN_MAX 1000.0
+#define GEN_MAX 100.0
 #define MUT_MAX 3.0
 
 #define GEN_START 0.6
@@ -135,7 +135,7 @@ bool evaluate_input(Input *saved, undefined_behaviour_t type, std::size_t hash) 
   return false;
 }
 
-void run_solver(std::string path_to_SUT, Input *saved, std::string input)
+bool run_solver(std::string path_to_SUT, Input *saved, std::string input)
 {
     if (verbose) std::cout << "-----------------------------------------------------------------" << std::endl;
 
@@ -162,12 +162,12 @@ void run_solver(std::string path_to_SUT, Input *saved, std::string input)
     undefined_behaviour_t error_type = process_output(output_content);
     std::size_t hash = get_hash(output_content);
         
-    evaluate_input(saved, error_type, hash);
+    return evaluate_input(saved, error_type, hash);
 }
 
-void run_solver_with_timeout(std::string path_to_SUT, Input *saved, std::string input, std::chrono::seconds timeout)
+bool run_solver_with_timeout(std::string path_to_SUT, Input *saved, std::string input, std::chrono::seconds timeout)
 {
-    std::future<void> solver_future = std::async(std::launch::async, run_solver, path_to_SUT, saved, input);
+    std::future<bool> solver_future = std::async(std::launch::async, run_solver, path_to_SUT, saved, input);
 
     if (solver_future.wait_for(timeout) == std::future_status::timeout)
     {
@@ -175,6 +175,8 @@ void run_solver_with_timeout(std::string path_to_SUT, Input *saved, std::string 
         std::cout << "Solver timed out!" << std::endl;
         std::string kill_solver = "killall runsat.sh";
         std::system(kill_solver.c_str());
+    } else {
+        return solver_future.get();
     }
 }
 
@@ -206,9 +208,9 @@ void update_strategy(Strategy *strat) {
   strat->mut_strat = (mutation_strategy_t)((int)strat->mut_strat + 1);
 
   
-  if (strat->mut_strat >= choose_mutate_strategy_15_controlled_chaos){
-    strat->gen_strat = (generation_strategy_t)( (int)strat->gen_strat + 1 % choose_mutate_strategy_end);
-    strat->mut_strat = (mutation_strategy_t)( (int)strat->mut_strat % choose_mutate_strategy_end);
+  if (strat->mut_strat >= choose_mutate_strategy_end){
+    strat->gen_strat = (generation_strategy_t)( ((int)strat->gen_strat + 1) % (int)choose_generate_strategy_end);
+    strat->mut_strat = (mutation_strategy_t)( ((int)strat->mut_strat) % (int)choose_mutate_strategy_end);
   }
   // strat->gen_aggresiveness += 0.01f;
 
@@ -287,7 +289,7 @@ int main(int argc, char *argv[])
     auto end_time = start_time + std::chrono::seconds(FUZZER_TIMEOUT);
 
     Strategy strategy = {
-      .gen_strat = choose_generate_strategy_1_random,
+      .gen_strat = choose_generate_strategy_8_unsat_pigeon_much_more_than_hole,
       .mut_strat = choose_mutate_strategy_1_nothing, 
       .gen_aggresiveness = 0.6f, 
       .mut_aggresiveness = 0.6f, 
@@ -304,13 +306,31 @@ int main(int argc, char *argv[])
     while (std::chrono::steady_clock::now() < end_time)
     {
 
+        // Number of iterations left for this strategy
         int strat_iterations_left = 10;
+
+        // MAX number of iterations left for this strategy. The counter above
+        // can be changed, but this acts as a backstop ensuring other strategies 
+        // are also tried
+        int max_strat_iterations_left = 50;
+
+    
         std::deque<int> new_coverage_fifo = {};
     
-        while (strat_iterations_left > 0){
+        while (strat_iterations_left > 0 && max_strat_iterations_left > 0){
 
           if(strategy.gen_aggresiveness >= GEN_MAX){
             strategy.gen_aggresiveness = GEN_MAX;
+          }
+
+          // For the most complicated mutation strategy, reduce the generation
+          // aggresive for faster iteration.  
+          if(strategy.mut_strat == choose_mutate_strategy_15_controlled_chaos && strategy.gen_aggresiveness >= GEN_MAX / 2){
+            strategy.gen_aggresiveness = GEN_MAX / 2;
+          }
+
+          if( (strategy.gen_strat == choose_generate_strategy_7_unsat_pigeonhole || strategy.gen_strat == choose_generate_strategy_8_unsat_pigeon_much_more_than_hole) && strategy.gen_aggresiveness >= GEN_MAX / 8){
+            strategy.gen_aggresiveness = GEN_MAX / 8;
           }
 
           if(strategy.mut_aggresiveness >= MUT_MAX){
@@ -337,7 +357,13 @@ int main(int argc, char *argv[])
       //       break;
       //     }
       
-          run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose) , std::chrono::seconds(SUT_TIMEOUT));
+          bool found_new_bug = run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose) , std::chrono::seconds(SUT_TIMEOUT));
+
+          // We found a new bug with the current strategy, try for longer:
+          if (found_new_bug){
+            strat_iterations_left += 10;
+          }
+
 
           if(aggregrate_coverage.has_value() == false){
             aggregrate_coverage = arc_coverage_all_files(coverage_dir, false);
@@ -365,8 +391,9 @@ int main(int argc, char *argv[])
 
             if(new_coverage_recently < 2){
               strategy.gen_aggresiveness *= 1.4;
-              strategy.mut_aggresiveness *= 1.10;
+              strategy.mut_aggresiveness *= 1.06;
             } else {
+              // We're finding new coverage, keep going!
               strat_iterations_left += 10;
             }        
           } else {
@@ -378,11 +405,12 @@ int main(int argc, char *argv[])
           // std::cout << "New coverage recently: " << new_coverage_recently << std::endl;
 
           strat_iterations_left--;
+          max_strat_iterations_left--;
         }
 
     
-        strategy.gen_aggresiveness = 1.00;
-        strategy.mut_aggresiveness = 1.00;
+        strategy.gen_aggresiveness = GEN_START;
+        strategy.mut_aggresiveness = MUT_START;
         
 
 
