@@ -10,6 +10,7 @@
 
 #define OUTPUT_VLA_BOUND "variable length array"
 #define OUTPUT_HEAP_BUFFER_OVERFLOW "heap-buffer-overflow"
+#define OUTPUT_WILD_POINTER "wild pointer"
 
 #define SUMMARY "SUMMARY"
 
@@ -31,10 +32,11 @@ enum undefined_behaviour_t {
 	unreachable,
 	invalid_vla_bound,
 	heap_buffer_overflow,
+	wild_pointer,
 
-  uncategorized,
-  error,
-  placeholder,
+	uncategorized,
+	error,
+	placeholder,
 };
 
 // struct process_result {

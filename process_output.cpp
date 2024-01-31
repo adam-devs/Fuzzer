@@ -13,9 +13,11 @@ undefined_behaviour_t process_output(std::string output) {
 		return invalid_vla_bound;
 	} else if (std::string::npos != output.find(OUTPUT_HEAP_BUFFER_OVERFLOW)){
 		return heap_buffer_overflow;
+	} else if (std::string::npos != output.find(OUTPUT_WILD_POINTER)){
+	    return wild_pointer;
 	} else if (std::string::npos != output.find(SUMMARY)){
-    return error;
-  } else {
+  		return error;
+	} else {
 		return uncategorized;
 	}	
 }

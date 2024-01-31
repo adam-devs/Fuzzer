@@ -185,6 +185,6 @@ std::optional<coverage*> calc_aggregrate_coverage(coverage* aggregate, coverage*
 
 
 void print_coverage_info(coverage* coverage){
-	printf("Covered %i/%i (%f \%) unique arcs.\n", coverage->arcs_executed, coverage->arcs, ( (float)coverage->arcs_executed)/((float)coverage->arcs) * 100.0f);
-	printf("Covered %i/%i (%f \%) unique functions.\n", coverage->functions_executed, coverage->functions, ( (float)coverage->functions_executed)/((float)coverage->functions) * 100.0f);
+	printf("Covered %i/%i (%f %) unique arcs.\n", coverage->arcs_executed, coverage->arcs, ( (float)coverage->arcs_executed)/((float)coverage->arcs) * 100.0f);
+	printf("Covered %i/%i (%f %) unique functions.\n", coverage->functions_executed, coverage->functions, ( (float)coverage->functions_executed)/((float)coverage->functions) * 100.0f);
 }
