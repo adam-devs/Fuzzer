@@ -195,7 +195,7 @@ void update_strategy(Strategy *strat) {
   strat->mut_strat = (mutation_strategy_t)((int)strat->mut_strat + 1);
 
   
-  if (strat->mut_strat >= choose_mutate_strategy_end){
+  if (strat->mut_strat >= choose_mutate_strategy_15_controlled_chaos){
     strat->gen_strat = (generation_strategy_t)( (int)strat->gen_strat + 1 % choose_mutate_strategy_end);
     strat->mut_strat = (mutation_strategy_t)( (int)strat->mut_strat % choose_mutate_strategy_end);
   }
@@ -220,7 +220,9 @@ void update_strategy(Strategy *strat) {
   // if((int)strat->gen_strat == choose_generate_strategy_7_sat_long){
   //   strat->gen_strat = choose_generate_strategy_8_cnf_omit_variable;
   // }
-
+  if(strat->gen_strat == choose_generate_strategy_8_unsat_pigeon_much_more_than_hole){
+    strat->gen_strat = choose_generate_strategy_1_random;
+  }
  
   // if((int)strat->gen_strat == choose_generate_strategy_7_sat_long && (int)strat->mut_strat == choose_mutate_strategy_11_variable_shuffle){
   //   strat->mut_strat= choose_mutate_strategy_12_line_deletion;
@@ -229,9 +231,9 @@ void update_strategy(Strategy *strat) {
   // if((int)strat->gen_strat == choose_generate_strategy_7_sat_long && (int)strat->mut_strat == choose_generate_strategy_13_unsat_pigeon_much_more_than_hole){
   //   strat->mut_strat= choose_mutate_strategy_14_line_shuffle;
   // }
-  // if((int)strat->mut_strat == 14){
-  //   strat->mut_strat = choose_mutate_strategy_15_controlled_chaos;
-  // }
+  if(strat->mut_strat == choose_mutate_strategy_15_controlled_chaos){
+    strat->mut_strat = choose_mutate_strategy_1_nothing;
+  }
 
 }
 
@@ -272,7 +274,7 @@ int main(int argc, char *argv[])
     auto start_time = std::chrono::steady_clock::now();
     auto end_time = start_time + std::chrono::seconds(FUZZER_TIMEOUT);
 
-    Strategy strategy = {.gen_aggresiveness = 0.6f};
+    Strategy strategy = {.gen_aggresiveness = 0.6f, .mut_aggresiveness = 0.6f};
 
     std::optional<coverage> aggregrate_coverage = {};
     std::string coverage_dir = std::string(path_to_SUT);
