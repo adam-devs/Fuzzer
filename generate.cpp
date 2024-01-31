@@ -115,7 +115,11 @@ std::string generate_strategy_5_cnf_omit_variable(std::mt19937 generator, int se
 // Generates a short well-formed cnf file with combinations that is guaranteed UNSAT 
 std::string generate_strategy_6_unsat_combination(std::mt19937 generator, float aggresiveness)
 {
-    int num_combination = 3 * aggresiveness; 
+    
+    int num_combination = 1 +  0.0025 * aggresiveness; 
+    if (num_combination >= 15){
+        num_combination = 15;
+    }
 
     // Distribution for drawing number of variables and clauses 
     std::uniform_int_distribution<int> d_num_combination(1, num_combination); 
@@ -596,7 +600,7 @@ std::string mutate_strategy_15_controlled_chaos(std::string cnf_input, int seed,
 }
 
 
-std::string generate_new_input(int seed, Strategy *strat, bool verbose = false)
+std::string generate_new_input(int seed, const Strategy *strat, bool verbose = false)
 {   
 
     // Get command from top level 
@@ -608,7 +612,7 @@ std::string generate_new_input(int seed, Strategy *strat, bool verbose = false)
 
     if (verbose || true) 
     {
-      std::cout << "Gen_Strat: " << generation_strategy << " Mutate_Strat: " << mutation_strategy << " Scaling: " << gen_aggresiveness << std::endl;    
+      std::cout << "Gen_Strat: " << generation_strategy << " Mutate_Strat: " << mutation_strategy << " GenAggro: " << gen_aggresiveness << " MutAggro: " << mut_aggresiveness << std::endl;    
     }
 
     // Initate generator for parameter generation 

@@ -1,9 +1,20 @@
 #include "fuzzer.hpp"
 #include "coverage.hpp"
 #include "generate.hpp"
+#include <future>
+#include <thread>
 
-#define FUZZER_TIMEOUT 200
+#define FUZZER_TIMEOUT 40
 #define SUT_TIMEOUT 5
+
+#define FIFO_SIZE 5
+
+#define GEN_MAX 1000.0
+#define MUT_MAX 3.0
+
+#define GEN_START 0.6
+#define MUT_START 0.6
+
 
 std::string FILENAME = "current-test.cnf";
 int counter = 0;
@@ -220,9 +231,9 @@ void update_strategy(Strategy *strat) {
   // if((int)strat->gen_strat == choose_generate_strategy_7_sat_long){
   //   strat->gen_strat = choose_generate_strategy_8_cnf_omit_variable;
   // }
-  if(strat->gen_strat == choose_generate_strategy_8_unsat_pigeon_much_more_than_hole){
-    strat->gen_strat = choose_generate_strategy_1_random;
-  }
+  // if(strat->gen_strat == choose_generate_strategy_8_unsat_pigeon_much_more_than_hole){
+  //   strat->gen_strat = choose_generate_strategy_1_random;
+  // }
  
   // if((int)strat->gen_strat == choose_generate_strategy_7_sat_long && (int)strat->mut_strat == choose_mutate_strategy_11_variable_shuffle){
   //   strat->mut_strat= choose_mutate_strategy_12_line_deletion;
@@ -231,11 +242,12 @@ void update_strategy(Strategy *strat) {
   // if((int)strat->gen_strat == choose_generate_strategy_7_sat_long && (int)strat->mut_strat == choose_generate_strategy_13_unsat_pigeon_much_more_than_hole){
   //   strat->mut_strat= choose_mutate_strategy_14_line_shuffle;
   // }
-  if(strat->mut_strat == choose_mutate_strategy_15_controlled_chaos){
-    strat->mut_strat = choose_mutate_strategy_1_nothing;
-  }
-
+  // if(strat->gen_strat == choose_generate_strategy_2_random_with_pline){
+  //   strat->gen_strat = choose_generate_strategy_3_cnf;
+  // }
 }
+
+
 
 int main(int argc, char *argv[])
 {
@@ -274,7 +286,12 @@ int main(int argc, char *argv[])
     auto start_time = std::chrono::steady_clock::now();
     auto end_time = start_time + std::chrono::seconds(FUZZER_TIMEOUT);
 
-    Strategy strategy = {.gen_aggresiveness = 0.6f, .mut_aggresiveness = 0.6f};
+    Strategy strategy = {
+      .gen_strat = choose_generate_strategy_1_random,
+      .mut_strat = choose_mutate_strategy_1_nothing, 
+      .gen_aggresiveness = 0.6f, 
+      .mut_aggresiveness = 0.6f, 
+    };
 
     std::optional<coverage> aggregrate_coverage = {};
     std::string coverage_dir = std::string(path_to_SUT);
@@ -286,27 +303,87 @@ int main(int argc, char *argv[])
     // Main loop
     while (std::chrono::steady_clock::now() < end_time)
     {
-        // int mut = (int)strategy.mut_strat;
-        // if ((mut < 2 || mut > 4) && mut != 9 && mut != 12) {
-        // Run the solver allowing for a timeout of 5 seconds
-          // run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
-        // }
-        run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose), std::chrono::seconds(SUT_TIMEOUT));
 
-        // float curr = 0.0;
-        // if (path_to_SUT == "solvers/minisat") {
-        //   curr = check_coverage("solvers/minisat/core", verbose); 
-        // } else {
-        //   curr = check_coverage(path_to_SUT, verbose);
-        // }
+        int strat_iterations_left = 10;
+        std::deque<int> new_coverage_fifo = {};
+    
+        while (strat_iterations_left > 0){
 
-        if(aggregrate_coverage.has_value() == false){
-          aggregrate_coverage = arc_coverage_all_files(coverage_dir, false);
+          if(strategy.gen_aggresiveness >= GEN_MAX){
+            strategy.gen_aggresiveness = GEN_MAX;
+          }
+
+          if(strategy.mut_aggresiveness >= MUT_MAX){
+            strategy.mut_aggresiveness = MUT_MAX;
+          }
+
+      // // std::string generate_new_input(int seed, const Strategy *strat, bool verbose);
+      //     std::packaged_task<std::string(int, const Strategy*, bool)> task(generate_new_input);         
+      //     seed++;
+
+      //     auto future = task.get_future();
+      //     std::thread gen_thread(std::move(task), seed, &strategy, verbose);
+
+      //     std::string input;
+      //     if(future.wait_for(std::chrono::seconds(5)) != std::future_status::timeout){
+      //       gen_thread.join();
+      //       input = future.get();
+      //     } else {
+
+      //       std::cout << " Input generation timed out " << std::endl;
+      //       int err = pthread_kill(gen_thread.native_handle(), 1);
+
+      //       std::cout << " Managed to kill thread: " << err << std::endl;
+      //       break;
+      //     }
+      
+          run_solver_with_timeout(path_to_SUT, saved_inputs, generate_new_input(seed++, &strategy, verbose) , std::chrono::seconds(SUT_TIMEOUT));
+
+          if(aggregrate_coverage.has_value() == false){
+            aggregrate_coverage = arc_coverage_all_files(coverage_dir, false);
+          }
+
+          coverage cur_coverage = *arc_coverage_all_files(coverage_dir, false);
+          coverage_diff coverage_diff = *calc_coverage_diff(&aggregrate_coverage.value(), &cur_coverage);
+          calc_aggregrate_coverage(&aggregrate_coverage.value(), &cur_coverage);
+          uint32_t new_arcs_discovered = coverage_diff.new_unique_arcs_executed;
+          
+          if (new_arcs_discovered > 0){
+            std::cout << "new arcs discovered " << new_arcs_discovered << std::endl;
+          }
+
+          print_coverage_info(&cur_coverage);
+          
+          new_coverage_fifo.push_front(new_arcs_discovered);
+
+          int new_coverage_recently = 0;
+          if (new_coverage_fifo.size() > FIFO_SIZE) {
+            new_coverage_fifo.pop_back();
+            for(int c = 0; c < new_coverage_fifo.size(); c++){
+              new_coverage_recently += new_coverage_fifo[c];
+            }
+
+            if(new_coverage_recently < 2){
+              strategy.gen_aggresiveness *= 1.4;
+              strategy.mut_aggresiveness *= 1.10;
+            } else {
+              strat_iterations_left += 10;
+            }        
+          } else {
+            // Dont do anything initially untill we have at least FIFO_SIZE
+            // entries
+          } 
+
+          // std::cout << "New coverage size: " << new_coverage_fifo.size() << std::endl;
+          // std::cout << "New coverage recently: " << new_coverage_recently << std::endl;
+
+          strat_iterations_left--;
         }
 
-        coverage cur_coverage = *arc_coverage_all_files(coverage_dir, false);
-        coverage_diff coverage_diff = *calc_coverage_diff(&aggregrate_coverage.value(), &cur_coverage);
-        calc_aggregrate_coverage(&aggregrate_coverage.value(), &cur_coverage);
+    
+        strategy.gen_aggresiveness = 1.00;
+        strategy.mut_aggresiveness = 1.00;
+        
 
 
         // max_coverage = std::max(curr, max_coverage);

@@ -11,6 +11,7 @@
 #include <future>
 #include <algorithm>
 #include <tuple>
+#include <deque>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>

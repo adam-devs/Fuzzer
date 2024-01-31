@@ -51,6 +51,6 @@ typedef struct
   float mut_aggresiveness;
 } Strategy;
 
-std::string generate_new_input(int seed, Strategy *strat, bool verbose);
+std::string generate_new_input(int seed, const Strategy *strat, bool verbose);
 
 #endif
