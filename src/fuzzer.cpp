@@ -97,6 +97,8 @@ bool evaluate_input(Input *saved, undefined_behaviour_t type, std::size_t hash) 
   // Calculate priority from seen/unseen type or address
   if (type == no_error || type == uncategorized) {
     priority = 0;
+  } else if (type == error) {
+    priority = 2;  
   } else if (new_type && new_hash) {
     priority = 5;
   } else if (new_type && !new_hash) {
@@ -105,8 +107,6 @@ bool evaluate_input(Input *saved, undefined_behaviour_t type, std::size_t hash) 
     priority = 3;
   } else if (!new_type && new_hash) {
     priority = 2;
-  } else if (type == error) {
-    priority = 2;  
   } else {
     priority = 1;
   }
