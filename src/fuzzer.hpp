@@ -53,7 +53,7 @@ void export_inputs_info(Input *saved) {
 
   for (int i = 0; i < 20; i++) {
     if (saved[i].type != placeholder)
-      out = out + std::to_string(i) + " Type: " + std::to_string(saved[i].type) + "\n";
+      out = out + std::to_string(i) + " Type: " + std::to_string(saved[i].type) + " Priority: " + std::to_string(saved[i].priority) + "\n";
   }
 
   std::cout << out << std::endl;

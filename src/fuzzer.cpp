@@ -3,7 +3,7 @@
 #include "generate.hpp"
 
 #define FUZZER_TIMEOUT 1800
-#define SUT_TIMEOUT 15
+#define SUT_TIMEOUT 5
 
 #define FIFO_SIZE 5
 
@@ -78,7 +78,11 @@ bool evaluate_input(Input *saved, undefined_behaviour_t type, std::size_t hash) 
   bool new_type = true;
   bool new_hash = true;
 
+  int type_representation [ub_end] = {0};
+
   for (int i = 0; i < 20; i++) {
+    type_representation[(int)(saved[i].type)] += 1;
+    
     if (saved[i].type == type) {
       new_type = false;
     }
@@ -94,8 +98,10 @@ bool evaluate_input(Input *saved, undefined_behaviour_t type, std::size_t hash) 
   if (type == no_error || type == uncategorized) {
     priority = 0;
   } else if (new_type && new_hash) {
-    priority = 4;
+    priority = 5;
   } else if (new_type && !new_hash) {
+    priority = 4;
+  } else if (!new_type && type_representation[type] <= 3){
     priority = 3;
   } else if (!new_type && new_hash) {
     priority = 2;

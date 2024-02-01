@@ -38,11 +38,13 @@ enum undefined_behaviour_t {
 	heap_buffer_overflow,
 	wild_pointer,
 
-  seg_fault,
-  error,
+	seg_fault,
+	error,
 	uncategorized,
 	no_error,
 	placeholder,
+
+	ub_end,
 };
 
 // struct process_result {
