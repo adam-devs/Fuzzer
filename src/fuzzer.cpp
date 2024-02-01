@@ -3,7 +3,7 @@
 #include "generate.hpp"
 
 #define FUZZER_TIMEOUT 1800
-#define SUT_TIMEOUT 5
+#define SUT_TIMEOUT 15
 
 #define FIFO_SIZE 5
 
