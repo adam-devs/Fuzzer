@@ -89,7 +89,7 @@ int read_notes_file(std::string notes_file_name, std::vector<function_info_t*>* 
 	}
 	
 	// read_uint32(notes_fd);
-	auto unexecuted_blocks = read_uint32(notes_fd);
+	auto unexecuted_blocks __attribute__((unused))= read_uint32(notes_fd);
 	// printf("Unexec blocks: %i\n", unexecuted_blocks);
 	
 	/*
@@ -130,10 +130,9 @@ int read_notes_file(std::string notes_file_name, std::vector<function_info_t*>* 
 	function_info_t *fn = NULL;
 	while (auto tag = *read_uint32(notes_fd)){
 		auto length = read_uint32(notes_fd);
-		auto base_pos = ftell(notes_fd);
+		auto base_pos __attribute__((unused)) = ftell(notes_fd);
 
 		// printf("Tag: %x\n", tag);
-
 		
 		if (feof(notes_fd)) {
 			// printf("Reached EOF\n");
@@ -278,12 +277,11 @@ int read_notes_file(std::string notes_file_name, std::vector<function_info_t*>* 
 			// We don't care about the source code, only the basic blocks!
 
 			uint32_t blockno = *read_uint32(notes_fd);
-			block_info *block = &fn->blocks[blockno];
+			// block_info *block = &fn->blocks[blockno];
 			if (blockno >= fn->blocks.size()) {
 				printf("More blocks than expected.\n");
 				return 1;
 			}
-
 
 			while (true) {
 				auto lineno = *read_uint32(notes_fd);
@@ -554,7 +552,6 @@ void solve_flow_graph(function_info_t *fn, std::string notes_file_name) {
 
 int read_count_file(std::string count_file_name, std::map<uint32_t, function_info_t *>* ident_to_fn) {
 	uint32_t ix;
-	int error = 0;
 
 	FILE* count_fd = fopen(count_file_name.c_str(), "rb");
 	if (!count_fd) {
@@ -571,7 +568,7 @@ int read_count_file(std::string count_file_name, std::map<uint32_t, function_inf
 		return 1;
 	}
 
-	auto version = *read_uint32(count_fd);
+	auto version __attribute__((unused)) = *read_uint32(count_fd);
 	auto tag = *read_uint32(count_fd);
 	// if (tag != bbg_stamp) {
 	// 	fnotice(stderr, "%s:stamp mismatch with notes file\n", count_file_name);
@@ -588,7 +585,7 @@ int read_count_file(std::string count_file_name, std::map<uint32_t, function_inf
 	while ((tag = *read_uint32(count_fd))) {
 		auto length = *read_uint32(count_fd);
 		int read_length = (int)length;
-		auto base = ftell(count_fd);
+		auto base __attribute__((unused)) = ftell(count_fd);
 
 		// printf("Tag: %x\n", tag);
 
@@ -598,7 +595,7 @@ int read_count_file(std::string count_file_name, std::map<uint32_t, function_inf
 		}
 
 		if (tag == GCOV_TAG_OBJECT_SUMMARY) {
-			gcov_summary summary;
+			gcov_summary summary __attribute__((unused));
 			summary.runs = *read_uint32(count_fd);
 			summary.sum_max = *read_uint32(count_fd);
 			// object_runs = summary.runs;

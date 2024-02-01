@@ -1,8 +1,6 @@
 #include "fuzzer.hpp"
 #include "coverage.hpp"
 #include "generate.hpp"
-#include <future>
-#include <thread>
 
 #define FUZZER_TIMEOUT 200
 #define SUT_TIMEOUT 5
@@ -175,6 +173,7 @@ bool run_solver_with_timeout(std::string path_to_SUT, Input *saved, std::string 
         std::cout << "Solver timed out!" << std::endl;
         std::string kill_solver = "killall runsat.sh";
         std::system(kill_solver.c_str());
+        return false;
     } else {
         return solver_future.get();
     }
@@ -191,7 +190,7 @@ float check_coverage(std::string path_to_SUT, bool debug) {
     std::cout << "Overall Arc Coverage: " << exec << "/" << total
     << " (" << std::to_string(100*exec/total)<< "%)" << std::endl;
     
-    return (100*exec/total);
+    return (100.0*exec/total);
   }
   else
   {
@@ -385,7 +384,7 @@ int main(int argc, char *argv[])
           int new_coverage_recently = 0;
           if (new_coverage_fifo.size() > FIFO_SIZE) {
             new_coverage_fifo.pop_back();
-            for(int c = 0; c < new_coverage_fifo.size(); c++){
+            for(size_t c = 0; c < new_coverage_fifo.size(); c++){
               new_coverage_recently += new_coverage_fifo[c];
             }
 
