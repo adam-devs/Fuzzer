@@ -153,6 +153,27 @@ std::string random_mutate(
 
         if (in_main_body)
         {
+            // Detecting junk
+            if (line == "" || line == " ")
+            {
+                continue; 
+            }
+
+            static const char junk_characters[] =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz"
+            "!@#$%^&*()_+-=;,./<>?|{}:";
+            
+            // At this stage, our generated code has fooled our fuzzer into 
+            // believing that it is a real cnf file... 
+            size_t found = line.find_first_of(junk_characters); 
+
+            if (found != std::string::npos) 
+            {
+                // Give back the junk that we are fed without parsing it 
+                return cnf_input; 
+            }
+            
             // Record variables in line 
             std::istringstream  line_stream(line);
             std::string         line_token;  
