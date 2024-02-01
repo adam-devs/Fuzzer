@@ -202,53 +202,14 @@ float check_coverage(std::string path_to_SUT, bool debug) {
   }
 }
 
-#define STRATEGIES 13
-#define MUTATIONS 15
-
 void update_strategy(Strategy *strat) {
   
   strat->mut_strat = (mutation_strategy_t)((int)strat->mut_strat + 1);
-
-  
+ 
   if (strat->mut_strat >= choose_mutate_strategy_end){
     strat->gen_strat = (generation_strategy_t)( ((int)strat->gen_strat + 1) % (int)choose_generate_strategy_end);
     strat->mut_strat = (mutation_strategy_t)( ((int)strat->mut_strat) % (int)choose_mutate_strategy_end);
   }
-  // strat->gen_aggresiveness += 0.01f;
-
-
-  // if((int)strat->mut_strat >= 2 && (int)strat->mut_strat <= 4){
-  //   strat->mut_strat = choose_mutate_strategy_5_num_vars_clauses;
-  // }
-  
-  // if((int)strat->mut_strat == choose_mutate_strategy_10_variable_insertion){
-  //   strat->mut_strat= choose_mutate_strategy_11_variable_shuffle;
-  // }
-
-  // if((int)strat->gen_strat == choose_generate_strategy_5_cnf_long && (int)strat->mut_strat == choose_mutate_strategy_10_variable_insertion){
-  //   strat->mut_strat = choose_mutate_strategy_11_variable_shuffle;
-  // }
- 
-  // // if((int)strat->gen_strat == choose_generate_strategy_5_cnf_long && (int)strat->mut_strat == choose_mutate_strategy_10_variable_insertion){
-  // //   strat->mut_strat = choose_mutate_strategy_11_variable_shuffle;
-  // // }
-  // if((int)strat->gen_strat == choose_generate_strategy_7_sat_long){
-  //   strat->gen_strat = choose_generate_strategy_8_cnf_omit_variable;
-  // }
-  // if(strat->gen_strat == choose_generate_strategy_8_unsat_pigeon_much_more_than_hole){
-  //   strat->gen_strat = choose_generate_strategy_1_random;
-  // }
- 
-  // if((int)strat->gen_strat == choose_generate_strategy_7_sat_long && (int)strat->mut_strat == choose_mutate_strategy_11_variable_shuffle){
-  //   strat->mut_strat= choose_mutate_strategy_12_line_deletion;
-  // }
-  
-  // if((int)strat->gen_strat == choose_generate_strategy_7_sat_long && (int)strat->mut_strat == choose_generate_strategy_13_unsat_pigeon_much_more_than_hole){
-  //   strat->mut_strat= choose_mutate_strategy_14_line_shuffle;
-  // }
-  // if(strat->gen_strat == choose_generate_strategy_2_random_with_pline){
-  //   strat->gen_strat = choose_generate_strategy_3_cnf;
-  // }
 }
 
 

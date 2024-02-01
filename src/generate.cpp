@@ -612,7 +612,7 @@ std::string generate_new_input(int seed, const Strategy *strat, bool verbose = f
 
     if (verbose || true) 
     {
-      std::cout << "Gen_Strat: " << generation_strategy << " Mutate_Strat: " << mutation_strategy << " GenAggro: " << gen_aggresiveness << " MutAggro: " << mut_aggresiveness << std::endl;    
+      std::cout << "Gen_Strat: " << generation_strategy << " Mutate_Strat: " << mutation_strategy << " GenAggro: " << gen_aggresiveness << " MutAggro: " << mut_aggresiveness << " Seed: " << seed << std::endl;    
     }
 
     // Initate generator for parameter generation 
