@@ -10,3 +10,4 @@ sat
 fuzzed-tests/
 c_cpp_properties.json
 settings.json
+current-test.cnf

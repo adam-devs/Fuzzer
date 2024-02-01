@@ -1,7 +1,0 @@
-#!/bin/bash
-make clean
-make all
-
-echo "Running fuzzer on $1 $2 $3 $4"
-
-./fuzzer $1 $2 $3 $4
