@@ -2,6 +2,7 @@
 set -x # Display every executed instruction
 set -e # Fail script as soon as instruction fails
 
+make
 # Implement your build script here...
 # You can assume this runs on an environment similar to a lab-machine.
 #
