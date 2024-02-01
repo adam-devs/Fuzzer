@@ -2,7 +2,7 @@
 #include "coverage.hpp"
 #include "generate.hpp"
 
-#define FUZZER_TIMEOUT 200
+#define FUZZER_TIMEOUT 1800
 #define SUT_TIMEOUT 5
 
 #define FIFO_SIZE 5
@@ -128,6 +128,9 @@ bool evaluate_input(Input *saved, undefined_behaviour_t type, std::size_t hash) 
     saved[min_index].type = type;    
     saved[min_index].hash = hash;
     return true;      
+  } else {
+    if (verbose)
+      std::cout << "Input did not yield interesting output. Priority: " << std::to_string(priority) << ", Type: " << std::to_string(type) << std::endl;
   }
 
   return false;
@@ -288,7 +291,7 @@ int main(int argc, char *argv[])
     auto end_time = start_time + std::chrono::seconds(FUZZER_TIMEOUT);
 
     Strategy strategy = {
-      .gen_strat = choose_generate_strategy_8_unsat_pigeon_much_more_than_hole,
+      .gen_strat = choose_generate_strategy_1_random,
       .mut_strat = choose_mutate_strategy_1_nothing, 
       .gen_aggresiveness = 0.6f, 
       .mut_aggresiveness = 0.6f, 
@@ -373,8 +376,8 @@ int main(int argc, char *argv[])
           calc_aggregrate_coverage(&aggregrate_coverage.value(), &cur_coverage);
           uint32_t new_arcs_discovered = coverage_diff.new_unique_arcs_executed;
           
-          if (new_arcs_discovered > 0){
-            std::cout << "new arcs discovered " << new_arcs_discovered << std::endl;
+          if (new_arcs_discovered > 0 && verbose){
+            std::cout << "Discovered " << new_arcs_discovered << " new arcs." << std::endl;
           }
 
           print_coverage_info(&cur_coverage);
